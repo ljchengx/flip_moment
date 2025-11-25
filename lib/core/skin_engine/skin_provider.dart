@@ -9,15 +9,36 @@ part 'skin_provider.g.dart'; // 等待 build_runner 生成代码
 class CurrentSkin extends _$CurrentSkin {
   @override
   AppSkin build() {
-    // 默认启动为复古模式，实际项目中可读取本地存储
+    // 读取本地缓存逻辑可在此处添加
     return VintageSkin();
   }
 
+  // 核心：切换指定皮肤
+  void setSkin(SkinMode mode) {
+    switch (mode) {
+      case SkinMode.vintage:
+        state = VintageSkin();
+        break;
+      case SkinMode.healing:
+        state = HealingSkin();
+        break;
+      case SkinMode.cyber:
+      // state = CyberSkin(); // 暂时用 Vintage 代替，防止报错
+        state = VintageSkin();
+        break;
+      case SkinMode.wish:
+      // state = WishSkin();
+        state = VintageSkin();
+        break;
+    }
+  }
+
+  // 保留原有 toggle 逻辑作为快捷方式
   void toggleSkin() {
     if (state.mode == SkinMode.vintage) {
-      state = HealingSkin(); // 切换逻辑
+      setSkin(SkinMode.healing);
     } else {
-      state = VintageSkin();
+      setSkin(SkinMode.vintage);
     }
   }
 }

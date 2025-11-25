@@ -259,6 +259,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wish'**
   String get themeWish;
+
+  /// No description provided for @skinDescVintage.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic mechanics & aesthetics.'**
+  String get skinDescVintage;
+
+  /// No description provided for @skinDescHealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft, cute, and stress-free.'**
+  String get skinDescHealing;
+
+  /// No description provided for @skinDescCyber.
+  ///
+  /// In en, this message translates to:
+  /// **'Decode your destiny from the future.'**
+  String get skinDescCyber;
+
+  /// No description provided for @skinDescWish.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a wish into the galaxy.'**
+  String get skinDescWish;
+
+  /// No description provided for @galleryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Gallery'**
+  String get galleryTitle;
+
+  /// No description provided for @statusApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENTLY APPLIED'**
+  String get statusApplied;
+
+  /// No description provided for @actionApply.
+  ///
+  /// In en, this message translates to:
+  /// **'APPLY THEME'**
+  String get actionApply;
+
+  /// No description provided for @actionUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'UNLOCK PREMIUM'**
+  String get actionUnlock;
+
+  /// No description provided for @vipBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get vipBadge;
 }
 
 class _AppLocalizationsDelegate

@@ -88,4 +88,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeWish => 'Wish';
+
+  @override
+  String get skinDescVintage => 'Classic mechanics & aesthetics.';
+
+  @override
+  String get skinDescHealing => 'Soft, cute, and stress-free.';
+
+  @override
+  String get skinDescCyber => 'Decode your destiny from the future.';
+
+  @override
+  String get skinDescWish => 'Make a wish into the galaxy.';
+
+  @override
+  String get galleryTitle => 'Theme Gallery';
+
+  @override
+  String get statusApplied => 'CURRENTLY APPLIED';
+
+  @override
+  String get actionApply => 'APPLY THEME';
+
+  @override
+  String get actionUnlock => 'UNLOCK PREMIUM';
+
+  @override
+  String get vipBadge => 'VIP';
 }

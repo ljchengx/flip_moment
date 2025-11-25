@@ -88,4 +88,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get themeWish => '许愿池';
+
+  @override
+  String get skinDescVintage => '经典机械美学与胶片质感。';
+
+  @override
+  String get skinDescHealing => '软萌团子带来的治愈时光。';
+
+  @override
+  String get skinDescCyber => '连接未来信号，解码你的运势。';
+
+  @override
+  String get skinDescWish => '向银河投掷一枚许愿币。';
+
+  @override
+  String get galleryTitle => '主题画廊';
+
+  @override
+  String get statusApplied => '当前使用中';
+
+  @override
+  String get actionApply => '应用主题';
+
+  @override
+  String get actionUnlock => '解锁会员权益';
+
+  @override
+  String get vipBadge => 'VIP';
 }

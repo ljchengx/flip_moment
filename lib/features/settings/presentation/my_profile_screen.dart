@@ -1,3 +1,4 @@
+import 'package:flip_moment/features/settings/presentation/skin_gallery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -94,7 +95,15 @@ class MyProfileScreen extends ConsumerWidget {
                   title: loc.featureThemes, // "主题皮肤"
                   // 动态显示当前皮肤名: "Vintage" / "复古机械"
                   value: _getSkinName(skin.mode, loc),
-                  onTap: () => ref.read(currentSkinProvider.notifier).toggleSkin(),
+                  onTap: () {
+                    // 修改这里：不再直接 toggle，而是跳转画廊
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        fullscreenDialog: true, // iOS 风格的模态弹窗 (从底部升起)
+                        builder: (context) => const SkinGalleryScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildDivider(),
                 _buildListTile(

@@ -35,5 +35,18 @@
   "themeVintage": "复古机械",
   "themeHealing": "治愈团子",
   "themeCyber": "赛博朋克",
-  "themeWish": "许愿池"
+  "themeWish": "许愿池",
+
+  "@_SKIN_DESCRIPTIONS": {},
+    "skinDescVintage": "经典机械美学与胶片质感。",
+    "skinDescHealing": "软萌团子带来的治愈时光。",
+    "skinDescCyber": "连接未来信号，解码你的运势。",
+    "skinDescWish": "向银河投掷一枚许愿币。",
+
+    "@_SKIN_GALLERY_UI": {},
+    "galleryTitle": "主题画廊",
+    "statusApplied": "当前使用中",
+    "actionApply": "应用主题",
+    "actionUnlock": "解锁会员权益",
+    "vipBadge": "VIP"
 }

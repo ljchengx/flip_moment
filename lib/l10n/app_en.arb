@@ -35,5 +35,18 @@
   "themeVintage": "Vintage",
   "themeHealing": "Healing",
   "themeCyber": "Cyber",
-  "themeWish": "Wish"
+  "themeWish": "Wish",
+
+  "@_SKIN_DESCRIPTIONS": {},
+    "skinDescVintage": "Classic mechanics & aesthetics.",
+    "skinDescHealing": "Soft, cute, and stress-free.",
+    "skinDescCyber": "Decode your destiny from the future.",
+    "skinDescWish": "Make a wish into the galaxy.",
+
+    "@_SKIN_GALLERY_UI": {},
+    "galleryTitle": "Theme Gallery",
+    "statusApplied": "CURRENTLY APPLIED",
+    "actionApply": "APPLY THEME",
+    "actionUnlock": "UNLOCK PREMIUM",
+    "vipBadge": "VIP"
 }
