@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class CoinFlipper extends StatefulWidget {
   final AppSkin skin;
@@ -208,7 +209,7 @@ class _CoinFlipperState extends State<CoinFlipper> with SingleTickerProviderStat
             alignment: Alignment.center,
             transform: isFront ? Matrix4.identity() : (Matrix4.identity()..rotateX(math.pi)),
             child: Text(
-              isFront ? "YES" : "NO",
+              isFront ? AppLocalizations.of(context)!.resultYes : AppLocalizations.of(context)!.resultNo,
               style: widget.skin.displayFont.copyWith(
                 fontSize: 60,
                 color: widget.skin.backgroundSurface.withOpacity(0.85),

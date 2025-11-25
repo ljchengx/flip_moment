@@ -1,0 +1,39 @@
+{
+  "appTitle": "Flip Moment",
+
+  "@_DECISION_SCREEN": {},
+  "tapToDecide": "TAP TO DECIDE",
+  "pokeGently": "Poke me gently ~",
+  "resultYes": "YES",
+  "resultNo": "NO",
+  "recordSaved": "Record saved",
+
+  "@_PROFILE_SCREEN": {},
+  "meTitle": "Me",
+  "identityTitle": "Lv.5 Fate Navigator",
+  "identityDesc": "Collecting moments, one flip at a time.",
+
+  "statsFlips": "Flips",
+  "statsStreak": "Streak",
+  "statsHappy": "Happy",
+
+  "sectionFeatures": "CORE FEATURES",
+  "featureThemes": "Theme Skins",
+  "featureLog": "Decision Log",
+  "featureLogSub": "Review your moments",
+  "featureWidgets": "Home Widgets",
+  "featureWidgetsSub": "Setup desktop shortcuts",
+
+  "sectionGeneral": "GENERAL",
+  "settingGeneral": "Settings & More",
+  "settingHelp": "Help & Feedback",
+  "settingAbout": "About Flip Moment",
+
+  "footerVersion": "Flip Moment v1.0.0 (Build 108)",
+
+  "@_THEME_NAMES": {},
+  "themeVintage": "Vintage",
+  "themeHealing": "Healing",
+  "themeCyber": "Cyber",
+  "themeWish": "Wish"
+}

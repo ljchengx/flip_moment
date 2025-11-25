@@ -53,4 +53,24 @@ class VintageSkin implements AppSkin {
   Future<void> performResultHaptic() async {
     await HapticFeedback.mediumImpact();
   }
+
+
+  @override
+  Gradient get profileHeaderGradient => const LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF2C2F33), // 深炭色
+      Color(0xFF1A1C1E), // 复古黑
+    ],
+  );
+
+  @override
+  Color get cardBackgroundColor => const Color(0xFF25282B); // 略浅于背景，形成层级
+
+  @override
+  BoxBorder get avatarBorder => Border.all(color: primaryAccent, width: 3); // 金色硬边框
+
+  @override
+  double get cardBorderRadius => 4.0; // 锐利的圆角
 }

@@ -31,4 +31,20 @@ abstract class AppSkin {
   // --- ⚡ 物理参数 (Physics) ---
   Curve get animationCurve;
   Duration get animationDuration;
+
+
+  // --- 👤 个人主页专用样式 ---
+  /// 头部背景渐变 (模拟皮质或卧室光感)
+  Gradient get profileHeaderGradient;
+
+  /// 卡片背景色
+  Color get cardBackgroundColor;
+
+  /// 头像边框装饰器 (返回 BoxBorder 或 ShapeBorder)
+  BoxBorder get avatarBorder;
+
+  /// 宫格图标的风格 (是否圆润，是否扁平)
+  double get cardBorderRadius;
+
+
 }

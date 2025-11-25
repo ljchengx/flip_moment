@@ -11,9 +11,9 @@ class DeskDecoration extends StatelessWidget {
     return CustomPaint(
       size: Size.infinite,
       painter: _DeskPainter(
-        lineColor: skin.textPrimary.withOpacity(0.1), // 极淡的线条
-        matColor: Colors.black.withOpacity(0.2),      // 深色桌垫
-        accentColor: skin.primaryAccent.withOpacity(0.3), // 强调色
+        lineColor: skin.textPrimary.withOpacity(0.05), // 线条再淡一点，不抢戏
+        matColor: Colors.black.withOpacity(0.25),      // 桌垫深色
+        accentColor: skin.primaryAccent.withOpacity(0.4), // 强调色 (取景框)
       ),
     );
   }
@@ -33,67 +33,86 @@ class _DeskPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
-    final paint = Paint()
-      ..color = lineColor
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
 
-    // 1. 绘制中间的"桌垫" (Mat) - 硬币的着陆区
-    // 这是一个深色的圆角矩形，给硬币提供视觉锚点
+    // --- 1. 计算核心区域 (桌垫) ---
+    // 这是一个正方形区域，硬币会落在里面
+    final matSize = size.width * 0.75; // 稍微缩小一点，留出呼吸感
     final matRect = Rect.fromCenter(
       center: center,
-      width: size.width * 0.8,
-      height: size.width * 0.8, // 正方形区域
+      width: matSize,
+      height: matSize,
     );
 
+    // --- 2. 绘制深色桌垫背景 ---
     final matPaint = Paint()
       ..color = matColor
       ..style = PaintingStyle.fill;
 
+    // 使用平滑圆角 (Continuous Rectangle 风格)
     canvas.drawRRect(
-      RRect.fromRectAndRadius(matRect, const Radius.circular(20)),
+      RRect.fromRectAndRadius(matRect, const Radius.circular(24)),
       matPaint,
     );
 
-    // 绘制桌垫的边框
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(matRect, const Radius.circular(20)),
-      paint,
-    );
+    // --- 3. 绘制"聚焦取景框" (Corner Accents) ---
+    // 关键修改：基于 matRect (桌垫) 绘制角落，而不是基于 size (屏幕)
+    // 这样就避开了顶部的 UI
+    final framePadding = 20.0; // 取景框比桌垫大一圈
+    final frameRect = matRect.inflate(framePadding);
+    final cornerLen = 25.0; // 角落线长度
 
-    // 2. 绘制"取景框"角落装饰 (四个角)
-    final cornerLen = 20.0;
-    final padding = 24.0;
     final accentPaint = Paint()
       ..color = accentColor
       ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.square; // 方头笔触，更硬朗
 
-    // 左上
-    canvas.drawLine(Offset(padding, padding), Offset(padding + cornerLen, padding), accentPaint);
-    canvas.drawLine(Offset(padding, padding), Offset(padding, padding + cornerLen), accentPaint);
-    // 右上
-    canvas.drawLine(Offset(size.width - padding, padding), Offset(size.width - padding - cornerLen, padding), accentPaint);
-    canvas.drawLine(Offset(size.width - padding, padding), Offset(size.width - padding, padding + cornerLen), accentPaint);
-    // 左下
-    canvas.drawLine(Offset(padding, size.height - padding), Offset(padding + cornerLen, size.height - padding), accentPaint);
-    canvas.drawLine(Offset(padding, size.height - padding), Offset(padding, size.height - padding - cornerLen), accentPaint);
-    // 右下
-    canvas.drawLine(Offset(size.width - padding, size.height - padding), Offset(size.width - padding - cornerLen, size.height - padding), accentPaint);
-    canvas.drawLine(Offset(size.width - padding, size.height - padding), Offset(size.width - padding, size.height - padding - cornerLen), accentPaint);
+    // 左上角 (Top-Left)
+    canvas.drawLine(frameRect.topLeft, frameRect.topLeft + Offset(cornerLen, 0), accentPaint);
+    canvas.drawLine(frameRect.topLeft, frameRect.topLeft + Offset(0, cornerLen), accentPaint);
 
-    // 3. 绘制中心十字准星 (极细)
-    // 仅在桌垫上下方画一点点，不穿过硬币
-    canvas.drawLine(Offset(center.dx, matRect.top - 20), Offset(center.dx, matRect.top - 5), paint);
-    canvas.drawLine(Offset(center.dx, matRect.bottom + 5), Offset(center.dx, matRect.bottom + 20), paint);
+    // 右上角 (Top-Right)
+    canvas.drawLine(frameRect.topRight, frameRect.topRight - Offset(cornerLen, 0), accentPaint);
+    canvas.drawLine(frameRect.topRight, frameRect.topRight + Offset(0, cornerLen), accentPaint);
 
-    // 4. 侧边刻度尺 (装饰用)
-    final rulerX = padding;
-    for (int i = 0; i < 20; i++) {
-      final y = size.height * 0.3 + (i * 15);
-      // 每5个刻度长一点
-      final len = (i % 5 == 0) ? 15.0 : 8.0;
-      canvas.drawLine(Offset(rulerX, y), Offset(rulerX + len, y), paint);
+    // 左下角 (Bottom-Left)
+    canvas.drawLine(frameRect.bottomLeft, frameRect.bottomLeft + Offset(cornerLen, 0), accentPaint);
+    canvas.drawLine(frameRect.bottomLeft, frameRect.bottomLeft - Offset(0, cornerLen), accentPaint);
+
+    // 右下角 (Bottom-Right)
+    canvas.drawLine(frameRect.bottomRight, frameRect.bottomRight - Offset(cornerLen, 0), accentPaint);
+    canvas.drawLine(frameRect.bottomRight, frameRect.bottomRight - Offset(0, cornerLen), accentPaint);
+
+    // --- 4. 辅助连接线 (Engineering Lines) ---
+    // 用极细的线连接取景框和桌垫，增加精密感
+    final linePaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 1.0;
+
+    // 绘制十字准星的延伸线 (上下左右)
+    // 上
+    canvas.drawLine(Offset(center.dx, frameRect.top), Offset(center.dx, frameRect.top - 30), linePaint);
+    // 下
+    canvas.drawLine(Offset(center.dx, frameRect.bottom), Offset(center.dx, frameRect.bottom + 30), linePaint);
+    // 左
+    canvas.drawLine(Offset(frameRect.left, center.dy), Offset(0, center.dy), linePaint); // 延伸到屏幕边缘
+    // 右
+    canvas.drawLine(Offset(frameRect.right, center.dy), Offset(size.width, center.dy), linePaint);
+
+    // --- 5. 左侧刻度尺 (Ruler) ---
+    // 确保刻度尺位置在桌垫旁边，不干扰顶部
+    final rulerX = 16.0;
+    // 只在桌垫的高度范围内绘制刻度
+    final startY = matRect.top;
+    final endY = matRect.bottom;
+
+    for (double y = startY; y <= endY; y += 15) {
+      // 每 4 个刻度画长一点
+      final isMajor = ((y - startY) % 60 == 0);
+      final len = isMajor ? 12.0 : 6.0;
+      // 稍微加粗主要刻度
+      linePaint.strokeWidth = isMajor ? 1.5 : 0.5;
+      canvas.drawLine(Offset(rulerX, y), Offset(rulerX + len, y), linePaint);
     }
   }
 

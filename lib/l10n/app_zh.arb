@@ -1,0 +1,39 @@
+{
+  "appTitle": "决定瞬间",
+
+  "@_DECISION_SCREEN": {},
+  "tapToDecide": "点击做决定",
+  "pokeGently": "戳戳我呀 ~",
+  "resultYes": "Yes",
+  "resultNo": "No",
+  "recordSaved": "记录已保存",
+
+  "@_PROFILE_SCREEN": {},
+  "meTitle": "我的",
+  "identityTitle": "Lv.5 命运领航员",
+  "identityDesc": "收集每一个决定的瞬间。",
+
+  "statsFlips": "次决策",
+  "statsStreak": "日连续",
+  "statsHappy": "快乐率",
+
+  "sectionFeatures": "核心功能",
+  "featureThemes": "个性皮肤",
+  "featureLog": "决策手账",
+  "featureLogSub": "回顾你的命运时刻",
+  "featureWidgets": "桌面组件",
+  "featureWidgetsSub": "在桌面装饰好运",
+
+  "sectionGeneral": "通用设置",
+  "settingGeneral": "设置与更多",
+  "settingHelp": "帮助与反馈",
+  "settingAbout": "关于决定瞬间",
+
+  "footerVersion": "瞬刻 v1.0.0 (内部版本 108)",
+
+  "@_THEME_NAMES": {},
+  "themeVintage": "复古机械",
+  "themeHealing": "治愈团子",
+  "themeCyber": "赛博朋克",
+  "themeWish": "许愿池"
+}

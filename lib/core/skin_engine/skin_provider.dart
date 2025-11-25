@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../skins/healing_skin.dart';
 import '../skins/vintage_skin.dart';
 import 'skin_protocol.dart';
 
@@ -14,7 +15,7 @@ class CurrentSkin extends _$CurrentSkin {
 
   void toggleSkin() {
     if (state.mode == SkinMode.vintage) {
-      // state = HealingSkin(); // 切换逻辑
+      state = HealingSkin(); // 切换逻辑
     } else {
       state = VintageSkin();
     }
