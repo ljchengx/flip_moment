@@ -3,16 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'core/providers/locale_provider.dart'; // 刚刚写的 Provider
+import 'core/providers/locale_provider.dart';
 import 'l10n/app_localizations.dart';
 
-
-// 引入刚刚写的页面
 import 'features/decision/presentation/decision_screen.dart';
+import 'features/decision/data/decision_model.dart';
+import 'features/settings/data/user_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await Hive.initFlutter();
+  
+  Hive.registerAdapter(UserModelAdapter());
+  Hive.registerAdapter(DecisionModelAdapter());
+  
+  await Hive.openBox<UserModel>('user_box');
+  await Hive.openBox<DecisionModel>('decisions_box');
+  await Hive.openBox('settings_box');
 
   runApp(
     const ProviderScope(

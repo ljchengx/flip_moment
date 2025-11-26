@@ -11,6 +11,9 @@ import '../../../../core/skin_engine/skin_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/providers/locale_provider.dart';
 import '../../../l10n/app_localizations.dart'; // 语言切换 Provider
+import '../../decision/providers/decision_log_provider.dart';
+import '../data/user_model.dart';
+import '../providers/user_provider.dart';
 
 class MyProfileScreen extends ConsumerWidget {
   const MyProfileScreen({super.key});
@@ -29,6 +32,12 @@ class MyProfileScreen extends ConsumerWidget {
     final skin = ref.watch(currentSkinProvider);
     // 获取多语言代理 (loc)
     final loc = AppLocalizations.of(context)!;
+    
+    // 监听实时数据
+    final user = ref.watch(userProvider);
+    final decisionNotifier = ref.watch(decisionLogProvider.notifier);
+    ref.watch(decisionLogProvider);
+    final stats = decisionNotifier.stats;
 
     return Scaffold(
       backgroundColor: kBackgroundColorLight,
@@ -81,7 +90,7 @@ class MyProfileScreen extends ConsumerWidget {
             const SizedBox(height: 10),
 
             // --- 2. 身份卡片 (Identity Card) ---
-            _buildIdentitySection(skin, loc),
+            _buildIdentitySection(skin, loc, user, stats),
 
             const SizedBox(height: 30),
 
@@ -172,7 +181,12 @@ class MyProfileScreen extends ConsumerWidget {
 
   // --- 🎨 组件构建区 ---
 
-  Widget _buildIdentitySection(AppSkin skin, AppLocalizations loc) {
+  Widget _buildIdentitySection(
+      AppSkin skin, 
+      AppLocalizations loc, 
+      UserModel user, 
+      DecisionStats stats
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
@@ -195,12 +209,12 @@ class MyProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           Text(
-            "Make_A_Decision",
+            user.nickname,
             style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w700, color: kTextPrimary),
           ),
           const SizedBox(height: 4),
           Text(
-            loc.identityTitle, // "Lv.5 命运领航员"
+            "Lv.${user.level} ${loc.identityTitle.split(' ').last}",
             style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.blueAccent),
           ),
 
@@ -212,9 +226,9 @@ class MyProfileScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem("108", loc.statsFlips), // "次决策"
-              _buildStatItem("7", loc.statsStreak),  // "日连续"
-              _buildStatItem("92%", loc.statsHappy), // "快乐率"
+              _buildStatItem(stats.totalCount.toString(), loc.statsFlips),
+              _buildStatItem(stats.streakDays.toString(), loc.statsStreak),
+              _buildStatItem("${stats.happyRate.toStringAsFixed(0)}%", loc.statsHappy),
             ],
           ),
         ],

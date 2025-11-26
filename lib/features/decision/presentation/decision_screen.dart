@@ -4,14 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // --- 核心依赖 ---
 import '../../../../core/skin_engine/skin_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
-import '../../../../core/skins/cyber_skin.dart'; // 引入 CyberSkin 以访问特定属性
+import '../../../../core/skins/cyber_skin.dart';
 
 // --- 组件依赖 ---
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/my_profile_screen.dart';
+import '../../settings/providers/user_provider.dart';
+import '../providers/decision_log_provider.dart';
 import 'widgets/desk_decoration.dart';
 import 'widgets/result_card.dart';
-import 'widgets/cyber_hud_decoration.dart'; // 引入赛博 HUD 背景
+import 'widgets/cyber_hud_decoration.dart';
 
 class DecisionScreen extends ConsumerStatefulWidget {
   const DecisionScreen({super.key});
@@ -45,9 +47,12 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     super.dispose();
   }
 
-  // 处理交互结束后的回调 (从 buildInteractiveHero 传回)
   void _handleDecisionEnd(String result) {
-    // 延迟 300ms 制造悬念，然后弹出结果
+    final skin = ref.read(currentSkinProvider);
+    
+    ref.read(decisionLogProvider.notifier).addRecord(result, skin.mode);
+    ref.read(userProvider.notifier).incrementExp();
+
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
