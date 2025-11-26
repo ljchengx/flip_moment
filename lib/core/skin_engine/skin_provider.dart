@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../skins/cyber_skin.dart';
 import '../skins/healing_skin.dart';
 import '../skins/vintage_skin.dart';
+import '../skins/wish_skin.dart';
 import 'skin_protocol.dart';
 
 part 'skin_provider.g.dart'; // 等待 build_runner 生成代码
@@ -27,8 +28,7 @@ class CurrentSkin extends _$CurrentSkin {
         state = CyberSkin(); // 暂时用 Vintage 代替，防止报错
         break;
       case SkinMode.wish:
-      // state = WishSkin();
-        state = VintageSkin();
+        state = WishSkin();
         break;
     }
   }
