@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/skin_engine/skin_protocol.dart';
 import '../data/decision_model.dart';
+import '../../../services/widget/widget_service.dart';
 
 class DecisionStats {
   final int totalCount;
@@ -30,6 +31,15 @@ class DecisionLogNotifier extends Notifier<List<DecisionModel>> {
     final newRecord = DecisionModel.create(result: result, skinMode: mode);
     await _box.add(newRecord);
     state = [newRecord, ...state];
+    
+    // 🔥 触发桌面组件同步
+    final widgetService = ref.read(widgetServiceProvider);
+    final stats = this.stats;
+    widgetService.updateWidgetData(
+      lastResult: result,
+      totalCount: stats.totalCount, 
+      streak: stats.streakDays,
+    );
   }
 
   Future<void> deleteRecord(String id) async {
