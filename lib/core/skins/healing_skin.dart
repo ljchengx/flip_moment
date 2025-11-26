@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../features/decision/presentation/widgets/mochi_character.dart';
 import '../skin_engine/skin_protocol.dart';
 
 class HealingSkin implements AppSkin {
@@ -49,9 +50,14 @@ class HealingSkin implements AppSkin {
   Widget buildInteractiveHero({
     required AnimationController controller,
     required VoidCallback onTap,
+    Function(String)? onResult,
   }) {
-    // 稍后实现
-    return const SizedBox();
+    // 返回治愈团子组件
+    return MochiCharacter(
+      skin: this,
+      onTap: onTap,         // 团子的点击
+      onResult: onResult,   // 团子的结果
+    );
   }
 
   @override

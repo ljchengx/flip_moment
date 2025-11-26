@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../features/decision/presentation/widgets/coin_flipper.dart';
 import '../skin_engine/skin_protocol.dart';
 
 class VintageSkin implements AppSkin {
@@ -36,12 +37,13 @@ class VintageSkin implements AppSkin {
   Widget buildInteractiveHero({
     required AnimationController controller,
     required VoidCallback onTap,
+    Function(String)? onResult,
   }) {
-    // TODO: 这里之后会连接具体的 CoinFlipper 组件
-    return Container(
-      width: 200, height: 200,
-      color: Colors.transparent,
-      child: Center(child: Text("🪙", style: TextStyle(fontSize: 80))),
+    // 返回复古硬币组件
+    return CoinFlipper(
+      skin: this,
+      onFlipStart: onTap,   // 将通用点击映射到硬币的"开始抛掷"
+      onFlipEnd: onResult,  // 将通用结果映射到硬币的"抛掷结束"
     );
   }
 
@@ -73,4 +75,5 @@ class VintageSkin implements AppSkin {
 
   @override
   double get cardBorderRadius => 4.0; // 锐利的圆角
+
 }

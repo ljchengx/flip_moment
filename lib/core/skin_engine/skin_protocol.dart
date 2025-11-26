@@ -68,6 +68,7 @@ abstract class AppSkin {
   Widget buildInteractiveHero({
     required AnimationController controller,
     required VoidCallback onTap,
+    Function(String)? onResult, // ✨ 新增：结果回调
   });
 
   // --- ⚡ 物理参数 (Physics) ---

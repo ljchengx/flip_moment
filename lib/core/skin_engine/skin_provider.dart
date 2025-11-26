@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../skins/cyber_skin.dart';
 import '../skins/healing_skin.dart';
 import '../skins/vintage_skin.dart';
 import 'skin_protocol.dart';
@@ -23,8 +24,7 @@ class CurrentSkin extends _$CurrentSkin {
         state = HealingSkin();
         break;
       case SkinMode.cyber:
-      // state = CyberSkin(); // 暂时用 Vintage 代替，防止报错
-        state = VintageSkin();
+        state = CyberSkin(); // 暂时用 Vintage 代替，防止报错
         break;
       case SkinMode.wish:
       // state = WishSkin();
@@ -35,10 +35,8 @@ class CurrentSkin extends _$CurrentSkin {
 
   // 保留原有 toggle 逻辑作为快捷方式
   void toggleSkin() {
-    if (state.mode == SkinMode.vintage) {
-      setSkin(SkinMode.healing);
-    } else {
-      setSkin(SkinMode.vintage);
-    }
+    // 简单的循环切换逻辑
+    final nextIndex = (state.mode.index + 1) % SkinMode.values.length;
+    setSkin(SkinMode.values[nextIndex]);
   }
 }

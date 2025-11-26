@@ -3,10 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// 核心依赖
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/skin_engine/skin_provider.dart';
 import '../../../../core/skins/vintage_skin.dart';
 import '../../../../core/skins/healing_skin.dart';
+import '../../../../core/skins/cyber_skin.dart'; // 确保引入了 CyberSkin
+
+// 国际化
 import '../../../l10n/app_localizations.dart';
 
 class SkinGalleryScreen extends ConsumerStatefulWidget {
@@ -20,22 +24,21 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
   late PageController _pageController;
   int _currentPage = 0;
 
-  // 预加载所有皮肤实例用于预览 (轻量级)
-  // 注意：实际项目中 Cyber/Wish 未实现时，这里暂时用 Vintage/Healing 占位演示
+  // 预加载皮肤实例用于预览
+  // 注意：这里只是为了画廊预览，不用每次都 new，节省资源
   final Map<SkinMode, AppSkin> _previewSkins = {
     SkinMode.vintage: VintageSkin(),
     SkinMode.healing: HealingSkin(),
-    SkinMode.cyber: VintageSkin(), // TODO: Replace with CyberSkin()
-    SkinMode.wish: HealingSkin(), // TODO: Replace with WishSkin()
+    SkinMode.cyber: CyberSkin(), // 赛博皮肤预览
+    SkinMode.wish: HealingSkin(), // 许愿池暂未开发，用 Healing 占位
   };
 
   @override
   void initState() {
     super.initState();
-    // 视口比例 0.8，让两侧露出一点点，提示可以滑动
     _pageController = PageController(viewportFraction: 0.85);
 
-    // 初始化时定位到当前皮肤
+    // 进入页面时，自动滚动到当前选中的皮肤
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentMode = ref.read(currentSkinProvider).mode;
       final index = SkinMode.values.indexOf(currentMode);
@@ -56,7 +59,7 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F7), // iOS Light Gray
+      backgroundColor: const Color(0xFFF2F2F7),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -65,19 +68,16 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          loc.galleryTitle,
+          loc.galleryTitle, // "主题画廊"
           style: GoogleFonts.inter(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 17,
-          ),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
         ),
         centerTitle: true,
       ),
       body: Column(
         children: [
           const SizedBox(height: 20),
-          // --- 1. 卡片轮播区 ---
+          // 1. 轮播区
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -85,7 +85,7 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
               onPageChanged: (index) => setState(() => _currentPage = index),
               itemBuilder: (context, index) {
                 final mode = SkinMode.values[index];
-                // 计算视差/缩放效果
+                // 简单的视差缩放计算
                 return AnimatedBuilder(
                   animation: _pageController,
                   builder: (context, child) {
@@ -94,15 +94,11 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
                       value = _pageController.page! - index;
                       value = (1 - (value.abs() * 0.1)).clamp(0.9, 1.0);
                     } else {
-                      // 初始状态处理
                       value = (index == _currentPage) ? 1.0 : 0.9;
                     }
                     return Center(
                       child: SizedBox(
-                        height:
-                            Curves.easeOut.transform(value) *
-                            MediaQuery.of(context).size.height *
-                            0.65,
+                        height: Curves.easeOut.transform(value) * MediaQuery.of(context).size.height * 0.65,
                         width: Curves.easeOut.transform(value) * 400,
                         child: child,
                       ),
@@ -110,10 +106,11 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
                   },
                   child: _SkinCard(
                     mode: mode,
-                    skinInstance: _previewSkins[mode]!,
+                    skinInstance: _previewSkins[mode] ?? VintageSkin(), // 安全回退
                     isActive: ref.watch(currentSkinProvider).mode == mode,
                     loc: loc,
                     onApply: () {
+                      // 切换皮肤
                       ref.read(currentSkinProvider.notifier).setSkin(mode);
                       HapticFeedback.mediumImpact();
                     },
@@ -123,20 +120,17 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
             ),
           ),
 
-          // --- 2. 底部指示器 ---
+          // 2. 指示器
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(SkinMode.values.length, (index) {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 8,
-                height: 8,
+                width: 8, height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentPage == index
-                      ? Colors.black
-                      : Colors.grey.withOpacity(0.3),
+                  color: _currentPage == index ? Colors.black : Colors.grey.withOpacity(0.3),
                 ),
               );
             }),
@@ -152,9 +146,8 @@ class _SkinCard extends StatefulWidget {
   final SkinMode mode;
   final AppSkin skinInstance;
   final bool isActive;
-  final VoidCallback onApply;
-
   final AppLocalizations loc;
+  final VoidCallback onApply;
 
   const _SkinCard({
     required this.mode,
@@ -168,17 +161,15 @@ class _SkinCard extends StatefulWidget {
   State<_SkinCard> createState() => _SkinCardState();
 }
 
-class _SkinCardState extends State<_SkinCard>
-    with SingleTickerProviderStateMixin {
+class _SkinCardState extends State<_SkinCard> with SingleTickerProviderStateMixin {
   late AnimationController _heroController;
 
   @override
   void initState() {
     super.initState();
-    // 让预览界面的 Hero 缓慢自动播放，展示动态效果
     _heroController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2), // 慢动作预览
+      duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
   }
 
@@ -191,9 +182,10 @@ class _SkinCardState extends State<_SkinCard>
   @override
   Widget build(BuildContext context) {
     final isPremium = widget.mode.isPremium;
-    final isLocked =
-        isPremium; // 这里应该结合 UserProStatusProvider 判断，暂时假设所有 Premium 都未解锁
-    final loc = widget.loc;
+
+    // 🔥 核心修改：如果是 VIP，虽然显示锁定，但我们允许预览
+    // 如果你想完全模拟未解锁状态，这里设为 true
+    final isLocked = isPremium;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -201,11 +193,7 @@ class _SkinCardState extends State<_SkinCard>
         color: Colors.white,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
       child: ClipRRect(
@@ -215,48 +203,35 @@ class _SkinCardState extends State<_SkinCard>
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // --- A. 顶部预览区 (60% 高度) ---
+                // A. 顶部预览区
                 Expanded(
                   flex: 6,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: widget.mode.previewColor, // 使用配置的主色
-                      // 可以在这里加一个淡淡的 Grid 或 Noise 纹理
+                      color: widget.mode.previewColor,
                     ),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // 动态 Hero 预览
                         Transform.scale(
                           scale: 0.8,
                           child: widget.skinInstance.buildInteractiveHero(
                             controller: _heroController,
-                            onTap: () {}, // 预览模式禁止点击交互，只展示
+                            onTap: () {},
                           ),
                         ),
-
-                        // 如果是锁定状态，加一层模糊滤镜 "Tease"
-                        if (isLocked)
+                        if (isLocked && !widget.isActive)
                           Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.2), // 稍微压暗
-                              // 实际项目中可用 BackdropFilter 做高斯模糊，但性能开销大，这里用半透遮罩模拟
-                            ),
+                            child: Container(color: Colors.black.withOpacity(0.2)),
                           ),
-
-                        // 锁图标
-                        if (isLocked)
-                          const Icon(
-                            Icons.lock_outline,
-                            color: Colors.white54,
-                            size: 64,
-                          ),
+                        if (isLocked && !widget.isActive)
+                          const Icon(Icons.lock_outline, color: Colors.white54, size: 64),
                       ],
                     ),
                   ),
                 ),
 
-                // --- B. 底部信息区 (40% 高度) ---
+                // B. 底部信息区
                 Expanded(
                   flex: 4,
                   child: Padding(
@@ -268,40 +243,26 @@ class _SkinCardState extends State<_SkinCard>
                         Row(
                           children: [
                             Text(
-                              widget.mode.getTitle(loc).toUpperCase(),
-                              style: GoogleFonts.inter(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black,
-                              ),
+                              widget.mode.getTitle(widget.loc).toUpperCase(),
+                              style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.black),
                             ),
                             if (widget.isActive) ...[
                               const SizedBox(width: 8),
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 20,
-                              ),
-                            ],
+                              const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                            ]
                           ],
                         ),
                         const SizedBox(height: 8),
                         // 描述
                         Text(
-                          widget.mode.getDescription(loc),
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            height: 1.5,
-                          ),
+                          widget.mode.getDescription(widget.loc),
+                          style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600], height: 1.5),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-
                         const Spacer(),
-
-                        // 操作按钮
-                        _buildActionButton(isLocked, isPremium, loc),
+                        // 按钮
+                        _buildActionButton(isLocked && !widget.isActive, isPremium),
                       ],
                     ),
                   ),
@@ -309,30 +270,26 @@ class _SkinCardState extends State<_SkinCard>
               ],
             ),
 
-            // --- C. VIP 悬浮勋章 ---
+            // C. VIP 勋章
             if (isPremium)
-              Positioned(top: 20, right: 20, child: _buildVipBadge(loc)),
+              Positioned(
+                top: 20, right: 20,
+                child: _buildVipBadge(),
+              ),
           ],
         ),
       ),
     );
   }
 
-  // 构建 VIP 勋章 (黑金轻奢风)
-  Widget _buildVipBadge(AppLocalizations loc) {
+  Widget _buildVipBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black, // 纯黑底
+        color: Colors.black,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFD700), width: 1), // 金边
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFD700).withOpacity(0.4),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFFFD700), width: 1),
+        boxShadow: [BoxShadow(color: const Color(0xFFFFD700).withOpacity(0.4), blurRadius: 8)],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -340,69 +297,59 @@ class _SkinCardState extends State<_SkinCard>
           const Icon(Icons.stars, color: Color(0xFFFFD700), size: 14),
           const SizedBox(width: 4),
           Text(
-            loc.vipBadge,
-            style: GoogleFonts.inter(
-              color: const Color(0xFFFFD700), // 金字
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              letterSpacing: 1,
-            ),
+            widget.loc.vipBadge,
+            style: GoogleFonts.inter(color: const Color(0xFFFFD700), fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
           ),
         ],
       ),
     );
   }
 
-  // 构建底部按钮
-  Widget _buildActionButton(
-    bool isLocked,
-    bool isPremium,
-    AppLocalizations loc,
-  ) {
+  Widget _buildActionButton(bool isLocked, bool isPremium) {
+    // 1. 已应用状态
     if (widget.isActive) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(16)),
         child: Center(
           child: Text(
-            loc.statusApplied,
-            style: GoogleFonts.inter(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            widget.loc.statusApplied,
+            style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
       );
     }
 
+    // 2. 锁定状态 (VIP)
     if (isLocked) {
-      // VIP 解锁按钮 (渐变色)
       return GestureDetector(
         onTap: () {
-          // TODO: 触发内购弹窗
-          HapticFeedback.heavyImpact();
+          // 🔥🔥🔥 开发者后门：点击直接应用！
+          // 在正式版中，这里应该跳转支付页面
+          // Navigator.pushNamed(context, '/paywall');
+
+          // 模拟解锁成功提示
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("✨ Developer Mode: Premium Theme Unlocked!"),
+              backgroundColor: Colors.black87,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+
+          widget.onApply(); // 直接调用应用逻辑
         },
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF111111), Color(0xFF333333)], // 黑金渐变
-              // 或者更骚气的金色渐变: [Color(0xFFFDC830), Color(0xFFF37335)]
+              colors: [Color(0xFF111111), Color(0xFF333333)],
             ),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -410,13 +357,8 @@ class _SkinCardState extends State<_SkinCard>
               const Icon(Icons.lock, color: Color(0xFFFFD700), size: 18),
               const SizedBox(width: 8),
               Text(
-                loc.actionUnlock,
-                style: GoogleFonts.inter(
-                  color: const Color(0xFFFFD700), // 金色文字
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  letterSpacing: 0.5,
-                ),
+                widget.loc.actionUnlock,
+                style: GoogleFonts.inter(color: const Color(0xFFFFD700), fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5),
               ),
             ],
           ),
@@ -424,24 +366,17 @@ class _SkinCardState extends State<_SkinCard>
       );
     }
 
-    // 普通应用按钮
+    // 3. 普通应用按钮
     return GestureDetector(
       onTap: widget.onApply,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(16)),
         child: Center(
           child: Text(
-            loc.actionApply,
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            widget.loc.actionApply,
+            style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
       ),
