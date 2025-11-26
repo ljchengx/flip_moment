@@ -75,6 +75,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingAbout => '关于决定瞬间';
 
   @override
+  String get settingSoundEffects => '音效';
+
+  @override
+  String get settingHapticFeedback => '震动反馈';
+
+  @override
   String get footerVersion => '瞬刻 v1.0.0 (内部版本 108)';
 
   @override

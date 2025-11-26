@@ -28,6 +28,9 @@
   "settingGeneral": "设置与更多",
   "settingHelp": "帮助与反馈",
   "settingAbout": "关于决定瞬间",
+  
+  "settingSoundEffects": "音效",
+  "settingHapticFeedback": "震动反馈",
 
   "footerVersion": "瞬刻 v1.0.0 (内部版本 108)",
 

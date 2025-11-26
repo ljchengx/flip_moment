@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../features/decision/presentation/widgets/coin_flipper.dart';
 import '../skin_engine/skin_protocol.dart';
+import '../services/haptics/haptic_service.dart';
 
 class VintageSkin implements AppSkin {
   @override
@@ -47,13 +48,13 @@ class VintageSkin implements AppSkin {
     );
   }
 
-  // 👇 使用原生 HapticFeedback，不要用 Vibration 库
-  Future<void> performTapHaptic() async {
-    await HapticFeedback.heavyImpact(); // 机械感重击
+  // 👇 使用 HapticService，不要用 Vibration 库
+  Future<void> performTapHaptic(Ref ref) async {
+    await ref.read(hapticServiceProvider).heavy(); // 机械感重击
   }
 
-  Future<void> performResultHaptic() async {
-    await HapticFeedback.mediumImpact();
+  Future<void> performResultHaptic(Ref ref) async {
+    await ref.read(hapticServiceProvider).medium();
   }
 
 

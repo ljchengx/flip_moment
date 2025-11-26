@@ -75,6 +75,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingAbout => 'About Flip Moment';
 
   @override
+  String get settingSoundEffects => 'Sound Effects';
+
+  @override
+  String get settingHapticFeedback => 'Haptic Feedback';
+
+  @override
   String get footerVersion => 'Flip Moment v1.0.0 (Build 108)';
 
   @override

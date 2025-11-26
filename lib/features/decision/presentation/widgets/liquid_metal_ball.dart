@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // 必装依赖
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skins/cyber_skin.dart';
 import '../../../../core/services/audio/audio_service.dart';
+import '../../../../core/services/haptics/haptic_service.dart';
 
 class LiquidMetalBall extends ConsumerStatefulWidget {
   final CyberSkin skin;
@@ -65,7 +65,7 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
       _decodingText = "AWAITING...";
     });
     _chargeController.repeat(reverse: true);
-    HapticFeedback.heavyImpact(); // 初始重击
+    ref.read(hapticServiceProvider).heavy(); // 初始重击
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
@@ -80,7 +80,7 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
   }
 
   void _startDecodingSequence() {
-    HapticFeedback.mediumImpact();
+    ref.read(hapticServiceProvider).medium();
     // 1. 随机生成结果
     final isYes = math.Random().nextBool();
     final finalString = isYes ? "YES" : "NO";
@@ -99,7 +99,7 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
       });
 
       step++;
-      HapticFeedback.selectionClick(); // 滴答滴答声
+      ref.read(hapticServiceProvider).selection(); // 滴答滴答声
 
       // 3. 动画结束 (1秒后)
       if (step > 15) {
@@ -108,7 +108,7 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
           _decodingText = finalString;
           _displayResult = finalString;
         });
-        HapticFeedback.heavyImpact(); // 最终确认反馈
+        ref.read(hapticServiceProvider).heavy(); // 最终确认反馈
         widget.onResult?.call(finalString);
       }
     });
@@ -122,7 +122,7 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
       onLongPressEnd: _onLongPressEnd,
       // 兼容点击：如果用户只是点击，提示按住
       onTap: () {
-        HapticFeedback.lightImpact();
+        ref.read(hapticServiceProvider).light();
         // 可以加一个 Tooltip 或者 Toast 提示 "HOLD TO CHARGE"
       },
       child: Stack(

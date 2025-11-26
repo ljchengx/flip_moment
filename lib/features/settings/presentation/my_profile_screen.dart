@@ -15,6 +15,7 @@ import '../../decision/providers/decision_log_provider.dart';
 import '../../history/presentation/history_screen.dart';
 import '../data/user_model.dart';
 import '../providers/user_provider.dart';
+import 'providers/settings_provider.dart'; // 引入设置 Provider
 
 class MyProfileScreen extends ConsumerWidget {
   const MyProfileScreen({super.key});
@@ -39,6 +40,10 @@ class MyProfileScreen extends ConsumerWidget {
     final decisionNotifier = ref.watch(decisionLogProvider.notifier);
     ref.watch(decisionLogProvider);
     final stats = decisionNotifier.stats;
+    
+    // 获取设置状态
+    final settings = ref.watch(settingsProvider);
+    final settingsNotifier = ref.read(settingsProvider.notifier);
 
     return Scaffold(
       backgroundColor: kBackgroundColorLight,
@@ -142,6 +147,24 @@ class MyProfileScreen extends ConsumerWidget {
             _buildSectionHeader(loc.sectionGeneral), // "通用设置"
             _buildInsetGroup(
               children: [
+                // 🔊 音效开关
+                _buildSwitchTile(
+                  icon: Icons.volume_up_rounded,
+                  iconBgColor: const Color(0xFF007AFF), // iOS Blue
+                  title: loc.settingSoundEffects,
+                  value: settings.isSoundOn,
+                  onChanged: (val) => settingsNotifier.toggleSound(val),
+                ),
+                _buildDivider(),
+                // 📳 震动开关
+                _buildSwitchTile(
+                  icon: Icons.vibration_rounded,
+                  iconBgColor: const Color(0xFFFF9500), // iOS Orange
+                  title: loc.settingHapticFeedback,
+                  value: settings.isHapticOn,
+                  onChanged: (val) => settingsNotifier.toggleHaptic(val),
+                ),
+                _buildDivider(),
                 _buildListTile(
                   icon: Icons.settings,
                   iconBgColor: const Color(0xFF8E8E93), // iOS Gray
@@ -380,6 +403,43 @@ class MyProfileScreen extends ConsumerWidget {
       child: Text(
         title,
         style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: kTextSecondary),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required IconData icon,
+    required Color iconBgColor,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 16, color: Colors.white),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: kTextPrimary),
+            ),
+          ),
+          // iOS 风格 Switch
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeColor: const Color(0xFF34C759), // iOS Green
+          ),
+        ],
       ),
     );
   }

@@ -230,6 +230,18 @@ abstract class AppLocalizations {
   /// **'About Flip Moment'**
   String get settingAbout;
 
+  /// No description provided for @settingSoundEffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound Effects'**
+  String get settingSoundEffects;
+
+  /// No description provided for @settingHapticFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic Feedback'**
+  String get settingHapticFeedback;
+
   /// No description provided for @footerVersion.
   ///
   /// In en, this message translates to:

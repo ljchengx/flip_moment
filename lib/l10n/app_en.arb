@@ -28,6 +28,9 @@
   "settingGeneral": "Settings & More",
   "settingHelp": "Help & Feedback",
   "settingAbout": "About Flip Moment",
+  
+  "settingSoundEffects": "Sound Effects",
+  "settingHapticFeedback": "Haptic Feedback",
 
   "footerVersion": "Flip Moment v1.0.0 (Build 108)",
 

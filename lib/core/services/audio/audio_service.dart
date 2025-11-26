@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../skin_engine/skin_protocol.dart';
+import '../../../features/settings/presentation/providers/settings_provider.dart';
 
 /// 定义听觉意图
 enum SoundType {
@@ -13,11 +14,9 @@ class AudioService {
   // 使用单个播放器处理短音效，如果需要高并发(如快速点击)，可考虑使用 Soundpool
   // 但对于 audioplayers 6.0+，AudioPlayer 在低延迟模式下表现已足够好
   final AudioPlayer _player = AudioPlayer();
+  final Ref _ref; // 注入 Riverpod Ref
 
-  // 静音状态 (未来可对接 SettingsProvider)
-  bool _isMuted = false;
-
-  AudioService() {
+  AudioService(this._ref) {
     // 初始化配置：设置音频上下文
     final AudioContext audioContext = AudioContext(
       iOS: AudioContextIOS(
@@ -34,16 +33,13 @@ class AudioService {
     AudioPlayer.global.setAudioContext(audioContext);
   }
 
-  void toggleMute() {
-    _isMuted = !_isMuted;
-    if (_isMuted) _player.stop();
-  }
-
   /// 核心播放方法
   /// [type]: 动作类型
   /// [mode]: 当前皮肤模式
   Future<void> play(SoundType type, SkinMode mode) async {
-    if (_isMuted) return;
+    // 🔍 核心修改：检查全局设置
+    final isSoundOn = _ref.read(settingsProvider).isSoundOn;
+    if (!isSoundOn) return;
 
     // 1. 动态解析资源路径
     final assetPath = _resolvePath(type, mode);
@@ -81,5 +77,5 @@ class AudioService {
 
 // 全局 Provider
 final audioServiceProvider = Provider<AudioService>((ref) {
-  return AudioService();
+  return AudioService(ref);
 });

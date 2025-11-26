@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/services/audio/audio_service.dart';
+import '../../../../core/services/haptics/haptic_service.dart';
 
 class MochiCharacter extends ConsumerStatefulWidget {
   final AppSkin skin;
@@ -59,7 +59,7 @@ class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProv
       if (status == AnimationStatus.completed) {
         final result = math.Random().nextBool() ? "YES" : "NO";
         widget.onResult?.call(result);
-        HapticFeedback.selectionClick(); // 轻触反馈
+        ref.read(hapticServiceProvider).selection(); // 轻触反馈
         setState(() => _isProcessing = false);
       }
     });
@@ -87,7 +87,7 @@ class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProv
     setState(() => _isProcessing = true);
 
     widget.onTap?.call();
-    HapticFeedback.lightImpact(); // 按下时的轻微反馈
+    ref.read(hapticServiceProvider).light(); // 按下时的轻微反馈
     _controller.forward(from: 0.0);
   }
 

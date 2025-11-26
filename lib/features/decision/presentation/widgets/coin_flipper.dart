@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/services/audio/audio_service.dart';
+import '../../../../core/services/haptics/haptic_service.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class CoinFlipper extends ConsumerStatefulWidget {
@@ -74,7 +74,7 @@ class _CoinFlipperState extends ConsumerState<CoinFlipper> with SingleTickerProv
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onFlipEnd?.call(_isHeads ? "YES" : "NO");
-        HapticFeedback.mediumImpact();
+        ref.read(hapticServiceProvider).medium();
       }
     });
   }
@@ -86,7 +86,7 @@ class _CoinFlipperState extends ConsumerState<CoinFlipper> with SingleTickerProv
     ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
 
     widget.onFlipStart?.call();
-    HapticFeedback.heavyImpact();
+    ref.read(hapticServiceProvider).heavy();
 
     final bool nextResultIsHeads = math.Random().nextBool();
 

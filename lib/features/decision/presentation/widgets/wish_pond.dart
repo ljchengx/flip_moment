@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // 移除 noise_meter 和 permission_handler 引用
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/services/audio/audio_service.dart';
+import '../../../../core/services/haptics/haptic_service.dart';
 
 class WishPond extends ConsumerStatefulWidget {
   final AppSkin skin;
@@ -78,7 +78,7 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
   void _onTapCoin() {
     if (_isFlying || _coinSunk) return;
-    HapticFeedback.selectionClick();
+    ref.read(hapticServiceProvider).selection();
     // 模拟向下拖拽后发射
     _dragOffset = const Offset(0, 80);
     _onPanEnd(DragEndDetails(velocity: Velocity.zero));
@@ -91,7 +91,7 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
     ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
     
     _isDragging = true;
-    HapticFeedback.selectionClick();
+    ref.read(hapticServiceProvider).selection();
     setState(() {});
   }
 
@@ -119,7 +119,7 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
     // 发射!
     _isFlying = true;
-    HapticFeedback.heavyImpact();
+    ref.read(hapticServiceProvider).heavy();
 
     // 计算落点 (反向抛物线)
     final targetY = -200.0 - (_dragOffset.dy * 1.5);
@@ -143,7 +143,7 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
   // 1. 硬币入水瞬间
   void _onCoinSplash() {
-    HapticFeedback.mediumImpact(); // 入水震动
+    ref.read(hapticServiceProvider).medium(); // 入水震动
 
     setState(() {
       _coinSunk = true;      // 隐藏硬币
@@ -179,7 +179,7 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
   // 5. 结果显影
   Future<void> _revealResult() async {
-    await HapticFeedback.lightImpact(); // 显影时的神圣感
+    await ref.read(hapticServiceProvider).light(); // 显影时的神圣感
     setState(() {
       _resultVisible = true;
     });

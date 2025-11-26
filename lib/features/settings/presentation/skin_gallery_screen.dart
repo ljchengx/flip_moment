@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,6 +8,7 @@ import '../../../../core/skin_engine/skin_provider.dart';
 import '../../../../core/skins/vintage_skin.dart';
 import '../../../../core/skins/healing_skin.dart';
 import '../../../../core/skins/cyber_skin.dart'; // 确保引入了 CyberSkin
+import '../../../../core/services/haptics/haptic_service.dart'; // 引入 HapticService
 
 // 国际化
 import '../../../l10n/app_localizations.dart';
@@ -112,7 +112,7 @@ class _SkinGalleryScreenState extends ConsumerState<SkinGalleryScreen> {
                     onApply: () {
                       // 切换皮肤
                       ref.read(currentSkinProvider.notifier).setSkin(mode);
-                      HapticFeedback.mediumImpact();
+                      ref.read(hapticServiceProvider).medium();
                     },
                   ),
                 );

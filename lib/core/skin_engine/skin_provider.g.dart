@@ -6,7 +6,7 @@ part of 'skin_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$currentSkinHash() => r'670967a52289ebcd5581763777cf1a8066b2adc7';
+String _$currentSkinHash() => r'070c841e6538d06c8d293e566553a262e8a237d5';
 
 /// See also [CurrentSkin].
 @ProviderFor(CurrentSkin)
