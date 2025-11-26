@@ -32,6 +32,12 @@ class DecisionLogNotifier extends Notifier<List<DecisionModel>> {
     state = [newRecord, ...state];
   }
 
+  Future<void> deleteRecord(String id) async {
+    final record = _box.values.firstWhere((r) => r.id == id);
+    await record.delete();
+    state = state.where((r) => r.id != id).toList();
+  }
+
   DecisionStats get stats {
     if (state.isEmpty) return DecisionStats();
 

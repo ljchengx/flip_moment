@@ -115,4 +115,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vipBadge => 'VIP';
+
+  @override
+  String get historyTitle => 'Decision Log';
+
+  @override
+  String get historyEmpty => 'No moments collected yet';
+
+  @override
+  String get historyEmptyDesc => 'Your decision history will appear here';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
 }

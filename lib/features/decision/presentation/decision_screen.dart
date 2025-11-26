@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skin_engine/skin_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/skins/cyber_skin.dart';
+import '../../../../core/services/audio/audio_service.dart';
 
 // --- 组件依赖 ---
 import '../../../l10n/app_localizations.dart';
@@ -49,6 +50,10 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
 
   void _handleDecisionEnd(String result) {
     final skin = ref.read(currentSkinProvider);
+    final audioService = ref.read(audioServiceProvider);
+
+    // 🎵 播放结果音效 (核心插入点)
+    audioService.play(SoundType.result, skin.mode);
     
     ref.read(decisionLogProvider.notifier).addRecord(result, skin.mode);
     ref.read(userProvider.notifier).incrementExp();

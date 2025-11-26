@@ -115,4 +115,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get vipBadge => 'VIP';
+
+  @override
+  String get historyTitle => '决策手账';
+
+  @override
+  String get historyEmpty => '还没有收集到瞬间';
+
+  @override
+  String get historyEmptyDesc => '你的决策历史将在这里显示';
+
+  @override
+  String get today => '今天';
+
+  @override
+  String get yesterday => '昨天';
 }

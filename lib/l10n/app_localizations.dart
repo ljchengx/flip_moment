@@ -313,6 +313,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'VIP'**
   String get vipBadge;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision Log'**
+  String get historyTitle;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No moments collected yet'**
+  String get historyEmpty;
+
+  /// No description provided for @historyEmptyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your decision history will appear here'**
+  String get historyEmptyDesc;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
 }
 
 class _AppLocalizationsDelegate

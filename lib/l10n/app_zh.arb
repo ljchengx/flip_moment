@@ -48,5 +48,12 @@
     "statusApplied": "当前使用中",
     "actionApply": "应用主题",
     "actionUnlock": "解锁会员权益",
-    "vipBadge": "VIP"
+    "vipBadge": "VIP",
+
+    "@_HISTORY_SCREEN": {},
+    "historyTitle": "决策手账",
+    "historyEmpty": "还没有收集到瞬间",
+    "historyEmptyDesc": "你的决策历史将在这里显示",
+    "today": "今天",
+    "yesterday": "昨天"
 }

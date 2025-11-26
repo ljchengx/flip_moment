@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
+import '../../../../core/services/audio/audio_service.dart';
 import '../../../../l10n/app_localizations.dart';
 
-class CoinFlipper extends StatefulWidget {
+class CoinFlipper extends ConsumerStatefulWidget {
   final AppSkin skin;
   final VoidCallback? onFlipStart;
   final Function(String result)? onFlipEnd;
@@ -17,10 +19,10 @@ class CoinFlipper extends StatefulWidget {
   });
 
   @override
-  State<CoinFlipper> createState() => _CoinFlipperState();
+  ConsumerState<CoinFlipper> createState() => _CoinFlipperState();
 }
 
-class _CoinFlipperState extends State<CoinFlipper> with SingleTickerProviderStateMixin {
+class _CoinFlipperState extends ConsumerState<CoinFlipper> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _rotationAnim;
   late Animation<double> _heightAnim;
@@ -79,6 +81,9 @@ class _CoinFlipperState extends State<CoinFlipper> with SingleTickerProviderStat
 
   void _flip() {
     if (_controller.isAnimating) return;
+
+    // 🎵 播放点击音效 (核心插入点)
+    ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
 
     widget.onFlipStart?.call();
     HapticFeedback.heavyImpact();

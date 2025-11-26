@@ -48,5 +48,12 @@
     "statusApplied": "CURRENTLY APPLIED",
     "actionApply": "APPLY THEME",
     "actionUnlock": "UNLOCK PREMIUM",
-    "vipBadge": "VIP"
+    "vipBadge": "VIP",
+
+    "@_HISTORY_SCREEN": {},
+    "historyTitle": "Decision Log",
+    "historyEmpty": "No moments collected yet",
+    "historyEmptyDesc": "Your decision history will appear here",
+    "today": "Today",
+    "yesterday": "Yesterday"
 }

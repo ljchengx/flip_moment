@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // 移除 noise_meter 和 permission_handler 引用
 import '../../../../core/skin_engine/skin_protocol.dart';
+import '../../../../core/services/audio/audio_service.dart';
 
-class WishPond extends StatefulWidget {
+class WishPond extends ConsumerStatefulWidget {
   final AppSkin skin;
   final Function(String) onResult;
 
@@ -16,10 +18,10 @@ class WishPond extends StatefulWidget {
   });
 
   @override
-  State<WishPond> createState() => _WishPondState();
+  ConsumerState<WishPond> createState() => _WishPondState();
 }
 
-class _WishPondState extends State<WishPond> with TickerProviderStateMixin {
+class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMixin {
   // --- 物理/交互状态 ---
   Offset _dragOffset = Offset.zero;
   final Offset _coinPosition = const Offset(0, 50); // 初始位置
@@ -84,6 +86,10 @@ class _WishPondState extends State<WishPond> with TickerProviderStateMixin {
 
   void _onPanStart(DragStartDetails details) {
     if (_isFlying || _coinSunk) return;
+    
+    // 🎵 播放水滴音效
+    ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
+    
     _isDragging = true;
     HapticFeedback.selectionClick();
     setState(() {});

@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
+import '../../../../core/services/audio/audio_service.dart';
 
-class MochiCharacter extends StatefulWidget {
+class MochiCharacter extends ConsumerStatefulWidget {
   final AppSkin skin;
   final VoidCallback? onTap;
   final Function(String result)? onResult;
@@ -16,10 +18,10 @@ class MochiCharacter extends StatefulWidget {
   });
 
   @override
-  State<MochiCharacter> createState() => _MochiCharacterState();
+  ConsumerState<MochiCharacter> createState() => _MochiCharacterState();
 }
 
-class _MochiCharacterState extends State<MochiCharacter> with TickerProviderStateMixin {
+class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
   late Animation<double> _jumpAnim;
@@ -78,6 +80,10 @@ class _MochiCharacterState extends State<MochiCharacter> with TickerProviderStat
 
   void _onTap() {
     if (_isProcessing) return;
+
+    // 🎵 播放 Q 弹音效
+    ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
+
     setState(() => _isProcessing = true);
 
     widget.onTap?.call();

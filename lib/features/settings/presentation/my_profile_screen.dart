@@ -12,6 +12,7 @@ import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/providers/locale_provider.dart';
 import '../../../l10n/app_localizations.dart'; // 语言切换 Provider
 import '../../decision/providers/decision_log_provider.dart';
+import '../../history/presentation/history_screen.dart';
 import '../data/user_model.dart';
 import '../providers/user_provider.dart';
 
@@ -119,7 +120,11 @@ class MyProfileScreen extends ConsumerWidget {
                   icon: Icons.history_edu,
                   iconBgColor: const Color(0xFF5856D6), // iOS Indigo
                   title: loc.featureLog, // "决策手账"
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                    );
+                  },
                 ),
                 _buildDivider(),
                 _buildListTile(

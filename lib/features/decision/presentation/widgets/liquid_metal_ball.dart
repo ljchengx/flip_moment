@@ -3,19 +3,21 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // 必装依赖
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skins/cyber_skin.dart';
+import '../../../../core/services/audio/audio_service.dart';
 
-class LiquidMetalBall extends StatefulWidget {
+class LiquidMetalBall extends ConsumerStatefulWidget {
   final CyberSkin skin;
   final Function(String)? onResult;
 
   const LiquidMetalBall({super.key, required this.skin, this.onResult});
 
   @override
-  State<LiquidMetalBall> createState() => _LiquidMetalBallState();
+  ConsumerState<LiquidMetalBall> createState() => _LiquidMetalBallState();
 }
 
-class _LiquidMetalBallState extends State<LiquidMetalBall> with TickerProviderStateMixin {
+class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerProviderStateMixin {
   // 液态蠕动控制器
   late AnimationController _blobController;
   // 充能控制器
@@ -54,6 +56,9 @@ class _LiquidMetalBallState extends State<LiquidMetalBall> with TickerProviderSt
   // --- 交互逻辑 ---
 
   void _onLongPressStart(LongPressStartDetails details) {
+    // 🎵 播放充电音效
+    ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
+
     setState(() {
       _isCharging = true;
       _displayResult = null;
