@@ -120,6 +120,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionUnlock => '解锁会员权益';
 
   @override
+  String get actionComingSoon => '开发中';
+
+  @override
   String get vipBadge => 'VIP';
 
   @override
@@ -136,4 +139,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get yesterday => '昨天';
+
+  @override
+  String get levelUpTitle => 'LEVEL UP!';
+
+  @override
+  String get awesomeButton => '太棒了！';
+
+  @override
+  String get expProgress => 'XP 经验值';
+
+  @override
+  String get titleDrifter => '漂流瓶';
+
+  @override
+  String get titleLightSeeker => '寻光者';
+
+  @override
+  String get titleMomentCollector => '收藏家';
+
+  @override
+  String get titleStarReader => '占星师';
+
+  @override
+  String get titleFateArchitect => '命运主理人';
 }

@@ -320,6 +320,12 @@ abstract class AppLocalizations {
   /// **'UNLOCK PREMIUM'**
   String get actionUnlock;
 
+  /// No description provided for @actionComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'COMING SOON'**
+  String get actionComingSoon;
+
   /// No description provided for @vipBadge.
   ///
   /// In en, this message translates to:
@@ -355,6 +361,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yesterday'**
   String get yesterday;
+
+  /// No description provided for @levelUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LEVEL UP!'**
+  String get levelUpTitle;
+
+  /// No description provided for @awesomeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Awesome!'**
+  String get awesomeButton;
+
+  /// No description provided for @expProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'XP'**
+  String get expProgress;
+
+  /// No description provided for @titleDrifter.
+  ///
+  /// In en, this message translates to:
+  /// **'Drifter'**
+  String get titleDrifter;
+
+  /// No description provided for @titleLightSeeker.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Seeker'**
+  String get titleLightSeeker;
+
+  /// No description provided for @titleMomentCollector.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment Collector'**
+  String get titleMomentCollector;
+
+  /// No description provided for @titleStarReader.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Reader'**
+  String get titleStarReader;
+
+  /// No description provided for @titleFateArchitect.
+  ///
+  /// In en, this message translates to:
+  /// **'Fate Architect'**
+  String get titleFateArchitect;
 }
 
 class _AppLocalizationsDelegate

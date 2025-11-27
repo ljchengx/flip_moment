@@ -32,14 +32,22 @@ class DecisionLogNotifier extends Notifier<List<DecisionModel>> {
     await _box.add(newRecord);
     state = [newRecord, ...state];
     
-    // 🔥 触发桌面组件同步
-    final widgetService = ref.read(widgetServiceProvider);
-    final stats = this.stats;
-    widgetService.updateWidgetData(
-      lastResult: result,
-      totalCount: stats.totalCount, 
-      streak: stats.streakDays,
-    );
+    // 🔥 临时屏蔽：桌面组件同步逻辑
+    // 为了保证主流程稳定性，在 Widget 功能开发完成前，暂时注释掉以下代码
+    /*
+    try {
+      final widgetService = ref.read(widgetServiceProvider);
+      final stats = this.stats;
+      widgetService.updateWidgetData(
+        lastResult: result,
+        totalCount: stats.totalCount, 
+        streak: stats.streakDays,
+      );
+    } catch (e) {
+      // 即使报错也不要影响主流程，但最好先屏蔽调用
+      print("Widget Sync Skipped: $e");
+    }
+    */
   }
 
   Future<void> deleteRecord(String id) async {

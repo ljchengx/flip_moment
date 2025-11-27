@@ -120,6 +120,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionUnlock => 'UNLOCK PREMIUM';
 
   @override
+  String get actionComingSoon => 'COMING SOON';
+
+  @override
   String get vipBadge => 'VIP';
 
   @override
@@ -136,4 +139,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yesterday => 'Yesterday';
+
+  @override
+  String get levelUpTitle => 'LEVEL UP!';
+
+  @override
+  String get awesomeButton => 'Awesome!';
+
+  @override
+  String get expProgress => 'XP';
+
+  @override
+  String get titleDrifter => 'Drifter';
+
+  @override
+  String get titleLightSeeker => 'Light Seeker';
+
+  @override
+  String get titleMomentCollector => 'Moment Collector';
+
+  @override
+  String get titleStarReader => 'Star Reader';
+
+  @override
+  String get titleFateArchitect => 'Fate Architect';
 }

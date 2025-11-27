@@ -51,12 +51,23 @@
     "statusApplied": "当前使用中",
     "actionApply": "应用主题",
     "actionUnlock": "解锁会员权益",
+    "actionComingSoon": "开发中",
     "vipBadge": "VIP",
 
     "@_HISTORY_SCREEN": {},
-    "historyTitle": "决策手账",
-    "historyEmpty": "还没有收集到瞬间",
-    "historyEmptyDesc": "你的决策历史将在这里显示",
-    "today": "今天",
-    "yesterday": "昨天"
+  "historyTitle": "决策手账",
+  "historyEmpty": "还没有收集到瞬间",
+  "historyEmptyDesc": "你的决策历史将在这里显示",
+  "today": "今天",
+  "yesterday": "昨天",
+
+  "@_LEVEL_SYSTEM": {},
+  "levelUpTitle": "LEVEL UP!",
+  "awesomeButton": "太棒了！",
+  "expProgress": "XP 经验值",
+  "titleDrifter": "漂流瓶",
+  "titleLightSeeker": "寻光者", 
+  "titleMomentCollector": "收藏家",
+  "titleStarReader": "占星师",
+  "titleFateArchitect": "命运主理人"
 }

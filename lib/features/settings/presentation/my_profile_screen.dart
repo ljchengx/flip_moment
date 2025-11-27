@@ -134,9 +134,25 @@ class MyProfileScreen extends ConsumerWidget {
                 _buildDivider(),
                 _buildListTile(
                   icon: Icons.app_registration,
-                  iconBgColor: const Color(0xFF34C759), // iOS Green
+                  iconBgColor: Colors.grey.shade400, // 改为灰色，视觉上暗示"未激活"
                   title: loc.featureWidgets, // "桌面组件"
-                  onTap: () {},
+                  onTap: () {
+                    // 拦截原有逻辑，改为开发中提示
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "📱 桌面组件 (Widgets) 正在适配 iOS 17 与 Android 14，即将上线！",
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                        ),
+                        backgroundColor: const Color(0xFF333333),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        margin: const EdgeInsets.all(16),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -240,10 +256,51 @@ class MyProfileScreen extends ConsumerWidget {
             user.nickname,
             style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w700, color: kTextPrimary),
           ),
-          const SizedBox(height: 4),
-          Text(
-            "Lv.${user.level} ${loc.identityTitle.split(' ').last}",
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.blueAccent),
+          
+          const SizedBox(height: 8),
+          
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: skin.primaryAccent.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              "Lv.${user.level}  ${user.getTitleLabel(loc)}",
+              style: GoogleFonts.spaceMono(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: skin.primaryAccent.withOpacity(0.8)
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: user.progress,
+                    minHeight: 6,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(skin.primaryAccent),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "${user.currentExp} / ${user.maxExpForNextLevel} ${loc.expProgress}",
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w500
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 24),

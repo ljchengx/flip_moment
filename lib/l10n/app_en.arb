@@ -51,12 +51,23 @@
     "statusApplied": "CURRENTLY APPLIED",
     "actionApply": "APPLY THEME",
     "actionUnlock": "UNLOCK PREMIUM",
+    "actionComingSoon": "COMING SOON",
     "vipBadge": "VIP",
 
     "@_HISTORY_SCREEN": {},
-    "historyTitle": "Decision Log",
-    "historyEmpty": "No moments collected yet",
-    "historyEmptyDesc": "Your decision history will appear here",
-    "today": "Today",
-    "yesterday": "Yesterday"
+  "historyTitle": "Decision Log",
+  "historyEmpty": "No moments collected yet",
+  "historyEmptyDesc": "Your decision history will appear here",
+  "today": "Today",
+  "yesterday": "Yesterday",
+
+  "@_LEVEL_SYSTEM": {},
+  "levelUpTitle": "LEVEL UP!",
+  "awesomeButton": "Awesome!",
+  "expProgress": "XP",
+  "titleDrifter": "Drifter",
+  "titleLightSeeker": "Light Seeker",
+  "titleMomentCollector": "Moment Collector", 
+  "titleStarReader": "Star Reader",
+  "titleFateArchitect": "Fate Architect"
 }

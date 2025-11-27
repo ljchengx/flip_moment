@@ -222,10 +222,8 @@ class _SkinCardState extends State<_SkinCard> with SingleTickerProviderStateMixi
                         ),
                         if (isLocked && !widget.isActive)
                           Positioned.fill(
-                            child: Container(color: Colors.black.withOpacity(0.2)),
+                            child: Container(color: Colors.black.withOpacity(0.05)),
                           ),
-                        if (isLocked && !widget.isActive)
-                          const Icon(Icons.lock_outline, color: Colors.white54, size: 64),
                       ],
                     ),
                   ),
@@ -321,44 +319,50 @@ class _SkinCardState extends State<_SkinCard> with SingleTickerProviderStateMixi
       );
     }
 
-    // 2. 锁定状态 (VIP)
+    // 2. 锁定状态 (开发中)
     if (isLocked) {
       return GestureDetector(
         onTap: () {
-          // 🔥🔥🔥 开发者后门：点击直接应用！
-          // 在正式版中，这里应该跳转支付页面
-          // Navigator.pushNamed(context, '/paywall');
-
-          // 模拟解锁成功提示
+          // 阻断应用逻辑，仅提示
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text("✨ Developer Mode: Premium Theme Unlocked!"),
-              backgroundColor: Colors.black87,
+              content: Text(
+                "🚧 [${widget.mode.getTitle(widget.loc)}] 主题正在开发中，敬请期待！",
+                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              ),
+              backgroundColor: const Color(0xFF333333),
               behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 1),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 2),
             ),
           );
-
-          widget.onApply(); // 直接调用应用逻辑
         },
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF111111), Color(0xFF333333)],
+            gradient: LinearGradient(
+              colors: [Colors.grey.shade300, Colors.grey.shade400],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.lock, color: Color(0xFFFFD700), size: 18),
+              Icon(Icons.hourglass_top_rounded, color: Colors.grey.shade700, size: 18),
               const SizedBox(width: 8),
               Text(
-                widget.loc.actionUnlock,
-                style: GoogleFonts.inter(color: const Color(0xFFFFD700), fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5),
+                widget.loc.actionComingSoon,
+                style: GoogleFonts.inter(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  letterSpacing: 1.0,
+                ),
               ),
             ],
           ),

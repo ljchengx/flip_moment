@@ -10,6 +10,7 @@ import '../../../../core/services/audio/audio_service.dart';
 // --- 组件依赖 ---
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/my_profile_screen.dart';
+import '../../settings/presentation/widgets/level_up_dialog.dart';
 import '../../settings/providers/user_provider.dart';
 import '../providers/decision_log_provider.dart';
 import 'widgets/desk_decoration.dart';
@@ -28,6 +29,9 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
   // UI 状态
   bool _showResult = false;
   String _currentResult = "";
+  
+  // ✨ 新增：埋藏彩蛋的标记
+  bool _pendingLevelUp = false;
 
   // 通用待机动画控制器 (用于驱动呼吸、悬浮等效果)
   late AnimationController _idleController;
@@ -56,13 +60,17 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     audioService.play(SoundType.result, skin.mode);
     
     ref.read(decisionLogProvider.notifier).addRecord(result, skin.mode);
-    ref.read(userProvider.notifier).incrementExp();
+    
+    // 🔥 核心修改：这里只负责记录是否升级，绝不弹窗！
+    ref.read(userProvider.notifier).addExperience(10, onLevelUp: () {
+      _pendingLevelUp = true; // 埋下彩蛋
+    });
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
           _currentResult = result;
-          _showResult = true;
+          _showResult = true; // 此时只显示结果卡片，干干净净
         });
       }
     });
@@ -71,7 +79,34 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
   // 关闭结果卡片
   void _closeResult() {
     setState(() {
-      _showResult = false;
+      _showResult = false; // 先让结果卡片退场
+    });
+
+    // 🧨 检查是否有待触发的升级惊喜
+    if (_pendingLevelUp) {
+      _pendingLevelUp = false; // 消耗掉这个标记，防止重复
+      _showLevelUpSurprise();  // 启动惊喜流程
+    }
+  }
+
+  // 单独封装一个展示升级弹窗的方法
+  void _showLevelUpSurprise() {
+    // 稍微延迟 200ms，让结果卡片消失的动画播完，留出呼吸感
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (!mounted) return;
+
+      final user = ref.read(userProvider); // 获取最新等级数据
+      final skin = ref.read(currentSkinProvider); // 获取当前皮肤
+
+      showDialog(
+        context: context,
+        barrierDismissible: false, // 强仪式感：强制用户点击按钮才能关闭，不能点背景关闭
+        builder: (_) => LevelUpDialog(
+          newLevel: user.level,
+          newTitle: user.getTitleLabel(AppLocalizations.of(context)!),
+          skin: skin,
+        ),
+      );
     });
   }
 

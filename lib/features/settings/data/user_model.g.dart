@@ -21,13 +21,15 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       nickname: fields[1] as String,
       level: fields[2] as int,
       totalFlips: fields[3] as int,
+      currentExp: fields[4] as int,
+      maxExpForNextLevel: fields[5] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(2)
       ..write(obj.level)
       ..writeByte(3)
-      ..write(obj.totalFlips);
+      ..write(obj.totalFlips)
+      ..writeByte(4)
+      ..write(obj.currentExp)
+      ..writeByte(5)
+      ..write(obj.maxExpForNextLevel);
   }
 
   @override
