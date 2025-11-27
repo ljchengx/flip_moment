@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 
 class ResultCard extends StatefulWidget {
@@ -54,13 +55,13 @@ class _ResultCardState extends State<ResultCard> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    // 获取屏幕宽度，做响应式布局
     final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = screenWidth * 0.85; // 占据 85% 宽度
+    // 拍立得通常比较窄长，调整宽度比例
+    final cardWidth = screenWidth * 0.80; 
 
-    final bgColor = widget.skin.textPrimary;
-    final stampColor = widget.skin.secondaryAccent;
-
+    // 判断是否为 Vintage 模式，如果是则应用特殊样式，否则保留原有逻辑（保持兼容性）
+    // 或者直接修改所有模式，这里演示直接修改为拍立得风格（更具特色）
+    
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -79,72 +80,79 @@ class _ResultCardState extends State<ResultCard> with SingleTickerProviderStateM
         onTap: widget.onClose,
         child: Container(
           width: cardWidth,
-          // 高度自适应，但给足内边距
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          // 拍立得经典布局：底部留白极大
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 48), 
           decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(4),
+            color: const Color(0xFFF6F2E9), // 🎞️ 米白色相纸质感
+            borderRadius: BorderRadius.circular(2), // 拍立得几乎是直角
             boxShadow: [
-              // 更加深邃的投影，营造悬浮在桌面之上的感觉
               BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                blurRadius: 30,
-                spreadRadius: 5,
-                offset: const Offset(0, 15),
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 20,
+                spreadRadius: 2,
+                offset: const Offset(5, 10), // 悬浮感投影
               )
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 顶部装饰线
-              Container(width: 40, height: 4, color: Colors.black12),
-              const SizedBox(height: 20),
-
-              Text(
-                "DESTINY SAYS",
-                style: widget.skin.bodyFont.copyWith(
-                  color: Colors.black45,
-                  fontSize: 14,
-                  letterSpacing: 3,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // 巨大的印章
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                decoration: BoxDecoration(
-                  border: Border.all(color: stampColor, width: 6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  widget.result.toUpperCase(),
-                  style: widget.skin.displayFont.copyWith(
-                    fontSize: 80, // 字体极大
-                    color: stampColor,
-                    height: 1.0, // 紧凑行高
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2,
+              // 1. 黑色显影区域 (AspectRatio 1:1)
+              AspectRatio(
+                aspectRatio: 1.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF181818), // 深黑底色
+                    // 模拟镜头暗角 (Vignette)
+                    gradient: RadialGradient(
+                      colors: [const Color(0xFF2A2A2A), const Color(0xFF080808)],
+                      radius: 0.85,
+                    ),
+                  ),
+                  child: Center(
+                    // 结果文字：发光印章效果
+                    child: Text(
+                      widget.result.toUpperCase(),
+                      style: GoogleFonts.playfairDisplay( // 复古衬线体
+                        fontSize: 72,
+                        color: const Color(0xFFFF3B30).withOpacity(0.9), // 烧灼红
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4,
+                        shadows: [
+                          // 霓虹/显影液辉光
+                          BoxShadow(color: Colors.red.withOpacity(0.6), blurRadius: 30, spreadRadius: 5)
+                        ]
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              
+              const SizedBox(height: 24),
 
-              // 底部日期戳风格
+              // 2. 底部手写备注区域
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Icon(Icons.verified_outlined, size: 16, color: Colors.black26),
-                  const SizedBox(width: 8),
+                  // 左侧：手写签名
                   Text(
-                    "RECORDED ON 25.11",
-                    style: widget.skin.monoFont.copyWith(
-                      color: Colors.black38,
-                      fontSize: 12,
+                    "The Decision", 
+                    style: GoogleFonts.cedarvilleCursive(
+                      fontSize: 24, 
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF2C3333) // 墨水色
+                    )
+                  ),
+                  // 右侧：打字机日期
+                  Text(
+                    "NOV 27, '25", 
+                    style: GoogleFonts.courierPrime(
+                      fontSize: 12, 
+                      color: Colors.grey[600],
                       fontWeight: FontWeight.bold,
-                    ),
+                      letterSpacing: 1.0
+                    )
                   ),
                 ],
               ),

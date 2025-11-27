@@ -14,6 +14,7 @@ class DeskDecoration extends StatelessWidget {
         lineColor: skin.textPrimary.withOpacity(0.05), // 线条再淡一点，不抢戏
         matColor: Colors.black.withOpacity(0.25),      // 桌垫深色
         accentColor: skin.primaryAccent.withOpacity(0.4), // 强调色 (取景框)
+        verticalOffset: 50.0, // 手动向下偏移 50.0 (根据实际预览效果微调)
       ),
     );
   }
@@ -23,16 +24,19 @@ class _DeskPainter extends CustomPainter {
   final Color lineColor;
   final Color matColor;
   final Color accentColor;
+  final double verticalOffset; // 新增属性
 
   _DeskPainter({
     required this.lineColor,
     required this.matColor,
     required this.accentColor,
+    required this.verticalOffset, // 新增构造函数参数
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
+    // 核心计算：基于偏移量重新定位中心点
+    final center = size.center(Offset(0, verticalOffset));
 
     // --- 1. 计算核心区域 (桌垫) ---
     // 这是一个正方形区域，硬币会落在里面

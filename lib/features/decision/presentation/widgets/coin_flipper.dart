@@ -166,63 +166,55 @@ class _CoinFlipperState extends ConsumerState<CoinFlipper> with SingleTickerProv
   }
 
   Widget _buildCoinVisual(bool isFront) {
-    // 视觉层保持不变
-    // 修正：如果是反面，需要预先旋转180度修正文字方向
-    // 这里我们直接在 build 里处理文字方向，不依赖 Transform，逻辑更简单
+    final String imagePath = isFront
+        ? 'assets/images/vintage_coin_heads.png'
+        : 'assets/images/vintage_coin_tails.png';
 
     return Container(
-      width: 200, // 稍微缩小一点尺寸
+      width: 200,
       height: 200,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: widget.skin.primaryAccent,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            widget.skin.primaryAccent,
-            Color.lerp(widget.skin.primaryAccent, Colors.white, 0.5)!,
-            widget.skin.primaryAccent,
-            Color.lerp(widget.skin.primaryAccent, Colors.black, 0.3)!,
-          ],
-          stops: const [0.0, 0.3, 0.6, 1.0],
-        ),
         boxShadow: [
-          // 仅在硬币自身加一点厚度阴影
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, 4),
-            blurRadius: 2,
+            color: Colors.black.withOpacity(0.5),
+            // ✨ [优化2] 光影修正：
+            // 当显示反面时，因为容器翻转了，我们需要反向偏移阴影，
+            // 才能保证视觉上阴影始终是"投向下方"的。
+            offset: Offset(0, isFront ? 4 : -4),
+            blurRadius: 4,
           )
         ],
-        border: Border.all(color: widget.skin.backgroundSurface, width: 3),
       ),
-      child: Stack(
+      child: Transform(
         alignment: Alignment.center,
-        children: [
-          Container(
-            width: 170, height: 170,
+        // ✨ [优化1] 物理修正：
+        // 只需 rotateX(pi) 即可抵消父容器的翻转，让图片正立显示。
+        // 去掉了 rotateZ，防止文字左右镜像。
+        transform: isFront
+            ? Matrix4.identity()
+            : (Matrix4.identity()..rotateX(math.pi)),
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.contain,
+          // 兜底逻辑保持不变，很棒
+          errorBuilder: (context, error, stackTrace) => Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: widget.skin.backgroundSurface.withOpacity(0.2), width: 1.5),
+              color: widget.skin.primaryAccent,
             ),
-          ),
-          // 核心修正：文字翻转处理
-          // 如果显示的是反面 (isFront == false)，在这个 3D 容器里文字其实是倒着的
-          // 所以我们需要把文字单独转正，或者根据面来渲染
-          Transform(
-            alignment: Alignment.center,
-            transform: isFront ? Matrix4.identity() : (Matrix4.identity()..rotateX(math.pi)),
-            child: Text(
-              isFront ? AppLocalizations.of(context)!.resultYes : AppLocalizations.of(context)!.resultNo,
-              style: widget.skin.displayFont.copyWith(
-                fontSize: 60,
-                color: widget.skin.backgroundSurface.withOpacity(0.85),
-                fontWeight: FontWeight.w900,
+            child: Center(
+              child: Text(
+                isFront ? "H" : "T",
+                style: TextStyle(
+                  fontSize: 60,
+                  fontWeight: FontWeight.bold,
+                  color: widget.skin.backgroundSurface,
+                ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
