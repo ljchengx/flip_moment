@@ -9,6 +9,7 @@ import 'l10n/app_localizations.dart';
 import 'features/decision/presentation/decision_screen.dart';
 import 'features/decision/data/decision_model.dart';
 import 'features/settings/data/user_model.dart';
+import 'features/splash/presentation/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,9 +19,29 @@ void main() async {
   Hive.registerAdapter(UserModelAdapter());
   Hive.registerAdapter(DecisionModelAdapter());
   
-  await Hive.openBox<UserModel>('user_box');
-  await Hive.openBox<DecisionModel>('decisions_box');
-  await Hive.openBox('settings_box');
+  try {
+    await Hive.openBox<UserModel>('user_box');
+  } catch (e) {
+    // 如果 user_box 有问题，尝试删除并重新创建
+    await Hive.deleteBoxFromDisk('user_box');
+    await Hive.openBox<UserModel>('user_box');
+  }
+  
+  try {
+    await Hive.openBox<DecisionModel>('decisions_box');
+  } catch (e) {
+    // 如果 decisions_box 有问题，尝试删除并重新创建
+    await Hive.deleteBoxFromDisk('decisions_box');
+    await Hive.openBox<DecisionModel>('decisions_box');
+  }
+  
+  try {
+    await Hive.openBox('settings_box');
+  } catch (e) {
+    // 如果 settings_box 有问题，尝试删除并重新创建
+    await Hive.deleteBoxFromDisk('settings_box');
+    await Hive.openBox('settings_box');
+  }
 
   runApp(
     const ProviderScope(
@@ -55,7 +76,7 @@ class FlipMomentApp extends ConsumerWidget {
       ],
       // -----------------------
 
-      home: const DecisionScreen(),
+      home: const SplashScreen(),
     );
   }
 }

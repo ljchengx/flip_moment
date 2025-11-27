@@ -1,95 +1,3 @@
-1. 
-
-这是一套非常有格调且符合小红书调性的 **“自适应沉浸式开场”** 方案。将开屏页定义为 **“数字玄关”** 确实能极大地提升 App 的质感。
-
-正如你所说，我们不需要原生的 Launch Screen（那只是为了掩盖系统加载），我们需要的是一个 Flutter 绘制的 **“前奏页面”**。
-
-为了实现这个方案，我们需要执行以下三个步骤：
-
-1. **持久化皮肤状态**：确保 App 重启后能记住上次的主题。
-2. **构建“数字玄关”**：实现 `SplashScreen` 及其四大主题的微交互动画。
-3. **接入入口**：修改 `main.dart`。
-
-以下是具体的代码实现方案。
-
-
-
-### 第一步：让皮肤“被记住” (Persistence)
-
-
-
-我们需要修改 `SkinProvider`，让它在启动时从 Hive 读取上次的选择，并在切换时保存。
-
-请修改 `lib/core/skin_engine/skin_provider.dart`：
-
-Dart
-
-```
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../skins/cyber_skin.dart';
-import '../skins/healing_skin.dart';
-import '../skins/vintage_skin.dart';
-import '../skins/wish_skin.dart';
-import 'skin_protocol.dart';
-
-part 'skin_provider.g.dart';
-
-@Riverpod(keepAlive: true)
-class CurrentSkin extends _$CurrentSkin {
-  static const _kSkinKey = 'current_skin_mode_index';
-
-  @override
-  AppSkin build() {
-    // 1. 从 settings_box 读取上次保存的皮肤索引
-    // 注意：确保 main.dart 里已经打开了 'settings_box'
-    final box = Hive.box('settings_box');
-    final int savedIndex = box.get(_kSkinKey, defaultValue: SkinMode.vintage.index);
-    
-    // 2. 恢复皮肤
-    return _getSkinFromMode(SkinMode.values[savedIndex]);
-  }
-
-  void setSkin(SkinMode mode) {
-    // 1. 保存状态
-    final box = Hive.box('settings_box');
-    box.put(_kSkinKey, mode.index);
-    
-    // 2. 更新内存
-    state = _getSkinFromMode(mode);
-  }
-
-  AppSkin _getSkinFromMode(SkinMode mode) {
-    switch (mode) {
-      case SkinMode.vintage: return VintageSkin();
-      case SkinMode.healing: return HealingSkin();
-      case SkinMode.cyber:   return CyberSkin(); // 实际上线时请确保 CyberSkin 已完善
-      case SkinMode.wish:    return WishSkin();  // 实际上线时请确保 WishSkin 已完善
-    }
-  }
-
-  void toggleSkin() {
-    final nextIndex = (state.mode.index + 1) % SkinMode.values.length;
-    setSkin(SkinMode.values[nextIndex]);
-  }
-}
-```
-
-------
-
-
-
-### 第二步：构建“数字玄关” (The Portal)
-
-
-
-这是一个全新的页面。我们将使用 Flutter 的动画系统来模拟你描述的四种视觉效果。
-
-请新建文件 `lib/features/splash/presentation/splash_screen.dart`：
-
-Dart
-
-```
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -130,13 +38,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   Future<void> _bootstrap() async {
     // 1. 预加载逻辑 (如加载 heavy assets) 可放这里
-    // 2. 稍微震动一下，提示“系统启动”
+    // 2. 稍微震动一下，提示"系统启动"
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.read(hapticServiceProvider).light();
     });
 
-    // 3. 等待动画结束 (3秒仪式感)
-    await Future.delayed(const Duration(seconds: 3));
+    // 3. 等待动画结束 (1.5秒仪式感)
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
@@ -202,7 +110,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 }
 
-// --- 🎥 方案一：Vintage - “光阴的快门” ---
+// --- 🎥 方案一：Vintage - "光阴的快门" ---
 class _VintageShutter extends StatelessWidget {
   final AppSkin skin;
   const _VintageShutter({required this.skin});
@@ -228,7 +136,7 @@ class _VintageShutter extends StatelessWidget {
         // 为了视觉效果，我们用一个 AnimatedBuilder 画一个收缩的黑色光圈
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.0, end: 1.0),
-          duration: const Duration(milliseconds: 1500),
+          duration: const Duration(milliseconds: 800),
           curve: Curves.easeInOutQuart,
           builder: (context, value, child) {
             // value 0 -> 1 (打开过程)
@@ -255,7 +163,7 @@ class _VintageShutter extends StatelessWidget {
   }
 }
 
-// --- 🍡 方案二：Healing - “团子的苏醒” ---
+// --- 🍡 方案二：Healing - "团子的苏醒" ---
 class _HealingAwakening extends StatelessWidget {
   final AppSkin skin;
   const _HealingAwakening({required this.skin});
@@ -281,7 +189,7 @@ class _HealingAwakening extends StatelessWidget {
           ),
         )
         .animate()
-        .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 2000.ms, curve: Curves.elasticOut) // 伸懒腰
+        .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 1200.ms, curve: Curves.elasticOut) // 伸懒腰
         .shake(delay: 1000.ms, hz: 4), // 醒来抖动
 
         const SizedBox(height: 40),
@@ -298,7 +206,7 @@ class _HealingAwakening extends StatelessWidget {
   }
 }
 
-// --- 👾 方案三：Cyber - “系统接入中” ---
+// --- 👾 方案三：Cyber - "系统接入中" ---
 class _CyberBoot extends StatelessWidget {
   final AppSkin skin;
   const _CyberBoot({required this.skin});
@@ -333,7 +241,7 @@ class _CyberBoot extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Container(color: const Color(0xFFCCFF00), width: 200)
                 .animate()
-                .scaleX(alignment: Alignment.centerLeft, duration: 2000.ms, curve: Curves.step(10)), // 步进式加载
+                .scaleX(alignment: Alignment.centerLeft, duration: 1200.ms, curve: Curves.easeInOutCubicEmphasized), // 步进式加载
           ),
         ),
         
@@ -347,7 +255,7 @@ class _CyberBoot extends StatelessWidget {
   }
 }
 
-// --- ✨ 方案四：Wish - “迷雾散去” ---
+// --- ✨ 方案四：Wish - "迷雾散去" ---
 class _WishMist extends StatelessWidget {
   final AppSkin skin;
   const _WishMist({required this.skin});
@@ -373,7 +281,7 @@ class _WishMist extends StatelessWidget {
         // 动画：模糊度逐渐降低，透明度逐渐降低
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 10.0, end: 0.0), // 模糊半径从 10 变 0
-          duration: const Duration(seconds: 2),
+          duration: const Duration(milliseconds: 1200),
           builder: (context, sigma, child) {
             return BackdropFilter(
               filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
@@ -387,91 +295,3 @@ class _WishMist extends StatelessWidget {
     );
   }
 }
-```
-
-------
-
-
-
-### 第三步：修改主入口 (main.dart)
-
-
-
-最后，我们需要修改 `main.dart`，将 `DecisionScreen` 替换为 `SplashScreen`，并确保 `Hive` 初始化正确。
-
-请修改 `lib/main.dart`：
-
-Dart
-
-```
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-
-import 'core/providers/locale_provider.dart';
-import 'l10n/app_localizations.dart';
-import 'features/decision/data/decision_model.dart';
-import 'features/settings/data/user_model.dart';
-import 'features/splash/presentation/splash_screen.dart'; // 引入开屏页
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  await Hive.initFlutter();
-  
-  Hive.registerAdapter(UserModelAdapter());
-  Hive.registerAdapter(DecisionModelAdapter());
-  
-  await Hive.openBox<UserModel>('user_box');
-  await Hive.openBox<DecisionModel>('decisions_box');
-  await Hive.openBox('settings_box'); // 确保打开了设置盒子
-
-  runApp(
-    const ProviderScope(
-      child: FlipMomentApp(),
-    ),
-  );
-}
-
-class FlipMomentApp extends ConsumerWidget {
-  const FlipMomentApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flip Moment',
-      locale: locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('zh'),
-      ],
-      // 🔥 核心修改：入口改为 Splash Screen
-      home: const SplashScreen(),
-    );
-  }
-}
-```
-
-
-
-### 🚀 现在的体验流程
-
-
-
-1. **App 启动**：用户不再直接看到硬币，而是进入一个带有氛围感的页面。
-2. **皮肤检测**：`SplashScreen` 读取 `settings_box`，发现上次用的是 **Healing** 皮肤。
-3. **氛围渲染**：屏幕显示暖色背景，中间一只团子伸着懒腰醒来（Scale 动画）。
-4. **每日运势**：底部悄悄淡入一行字：“今日宜：直觉行事”。
-5. **无缝入场**：3秒后，团子完全醒来，页面淡出，无缝衔接到主界面的团子，用户可以直接开始交互。
-
-这套方案不仅解决了“加载无聊”的问题，还完美强化了“平行宇宙”的概念，绝对是小红书用户会截图发笔记的细节！
