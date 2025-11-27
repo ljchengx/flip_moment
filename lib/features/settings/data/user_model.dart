@@ -25,7 +25,7 @@ class UserModel extends HiveObject {
 
   UserModel({
     required this.uid,
-    this.nickname = "Drifter",
+    this.nickname = "Drifter", // 保留作为默认值，实际使用时会被随机生成器替换
     this.level = 1,
     this.totalFlips = 0,
     this.currentExp = 0,

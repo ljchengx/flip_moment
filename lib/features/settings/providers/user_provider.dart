@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../data/user_model.dart';
+import '../../../core/utils/username_generator.dart';
 
 class UserNotifier extends Notifier<UserModel> {
   late Box<UserModel> _box;
@@ -13,15 +14,34 @@ class UserNotifier extends Notifier<UserModel> {
     _box = Hive.box<UserModel>('user_box');
     
     if (_box.isEmpty) {
-      final newUser = UserModel(
-        uid: const Uuid().v4(),
-        nickname: "Drifter",
-      );
-      _box.put('current_user', newUser);
-      return newUser;
+      return _createNewGuestUser();
     } else {
-      return _box.get('current_user')!;
+      final existingUser = _box.get('current_user');
+      if (existingUser != null) {
+        return existingUser;
+      } else {
+        return _createNewGuestUser();
+      }
     }
+  }
+
+  /// 创建一个全新的游客用户
+  UserModel _createNewGuestUser() {
+    final randomNickname = UsernameGenerator.generateRandomUsername();
+    
+    final newUser = UserModel(
+      uid: const Uuid().v4(),
+      nickname: randomNickname,
+      level: 1,
+      currentExp: 0,
+      totalFlips: 0,
+      maxExpForNextLevel: 100,
+    );
+
+    _box.put('current_user', newUser);
+    debugPrint("🆕 Created New Guest User: ${newUser.nickname} (${newUser.uid})");
+    
+    return newUser;
   }
 
   void addExperience(int amount, {VoidCallback? onLevelUp}) {
@@ -48,7 +68,8 @@ class UserNotifier extends Notifier<UserModel> {
     
     state.maxExpForNextLevel = 100 + (state.level - 1) * 50;
     
-    state.nickname = state.titleLabel;
+    // 不再更改昵称，保留用户的个性化身份
+    // 称号系统通过 getTitleLabel() 方法独立获取
   }
 
   void recordFlip({bool isDailyFirst = false, int streakDays = 0}) {
@@ -67,6 +88,13 @@ class UserNotifier extends Notifier<UserModel> {
 
   void recordShare() {
     addExperience(100);
+  }
+
+  /// 重置用户身份 (调试用)
+  /// 清除当前用户数据并创建新的随机身份
+  Future<void> resetIdentity() async {
+    await _box.delete('current_user');
+    state = _createNewGuestUser();
   }
 }
 
