@@ -11,6 +11,8 @@ import 'features/decision/data/decision_model.dart';
 import 'features/settings/data/user_model.dart';
 import 'features/splash/presentation/splash_screen.dart';
 
+import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -43,6 +45,20 @@ void main() async {
     await Hive.openBox('settings_box');
   }
 
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 禁用详细日志
+  debugPrint = (String? message, {int? wrapWidth}) {
+    if (message != null &&
+        !message.contains('Adreno') &&
+        !message.contains('AttachmentInPersistentGmem')) {
+      print(message);
+    }
+  };
+
+  UmengCommonSdk.initCommon('692822638560e34872f53c3d', '', 'Umeng');
+  UmengCommonSdk.setPageCollectionModeManual();
+
   runApp(
     const ProviderScope(
       child: FlipMomentApp(),
@@ -57,7 +73,6 @@ class FlipMomentApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 监听语言变化
     final locale = ref.watch(localeProvider);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flip Moment', // 这里只能写死，或者不写

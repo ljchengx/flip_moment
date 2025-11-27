@@ -39,6 +39,14 @@ android {
     }
 }
 
+dependencies {
+    // ... 原有的依赖保持不变
+
+    // [新增] 友盟基础组件库 (Common)
+    implementation("com.umeng.umsdk:common:9.6.6") // 请检查官网最新版本
+    implementation("com.umeng.umsdk:asms:1.8.3")   // 必选
+}
+
 flutter {
     source = "../.."
 }
