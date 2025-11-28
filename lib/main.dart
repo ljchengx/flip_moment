@@ -16,6 +16,13 @@ import 'package:umeng_common_sdk/umeng_common_sdk.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // 🚀 [画质优先] 内存扩容 Plus
+  // 900px * 900px * 4 bytes ≈ 3MB 一张图
+  // 80 张图 ≈ 240MB。
+  // 我们给 400MB 缓存空间，确保绝不发生"边播边清理"导致的卡顿。
+  PaintingBinding.instance.imageCache.maximumSize = 200; 
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 400 * 1024 * 1024; // 400MB
+  
   await Hive.initFlutter();
   
   Hive.registerAdapter(UserModelAdapter());

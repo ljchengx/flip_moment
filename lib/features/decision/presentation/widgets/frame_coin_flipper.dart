@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
@@ -23,26 +24,55 @@ class FrameCoinFlipper extends ConsumerStatefulWidget {
 
 class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _frameAnim;
-  
+  late Animation<double> _frameAnim;   // 控制播放第几张图
+  late Animation<double> _heightAnim;  // 控制飞起的高度 (Flutter接管物理)
+  late Animation<double> _wobbleAnim;  // 增加一点空中姿态的微调
+
   // 状态：当前显示哪一组序列
-  // true = 正面序列 (heads_xx.png), false = 反面序列 (tails_xx.png)
   bool _isHeadsSequence = true;
   
-  // 配置：序列帧总数 (根据实际图片数量调整)
-  final int _frameCount = 40;
+  // ⚙️ 配置区：根据你的新素材调整
+  final int _frameCount = 40; // 你的序列帧总数
+  final double _jumpHeight = -250.0; // 向上飞的高度 (负数向上)
 
   @override
   void initState() {
     super.initState();
-    // 动画时长与原3D动画保持一致，约1.6秒
+    
+    // 1. 动画时长
+    // 40帧以 30~40fps 播放约需 1000~1300ms，这个速度最有重量感
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1600), 
+      duration: const Duration(milliseconds: 1100), // 回调到 1.1秒，提供更好的物理体验
     );
 
-    // 线性动画，对应帧索引 0 -> 39
-    _frameAnim = Tween<double>(begin: 0, end: (_frameCount - 1).toDouble()).animate(_controller);
+    // 2. 序列帧进度 (必须是线性的，否则旋转速度会忽快忽慢)
+    _frameAnim = Tween<double>(begin: 0, end: (_frameCount - 1).toDouble()).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear) 
+    );
+
+    // 3. 抛物线高度 (核心修复点：不再依赖图片里的位移)
+    _heightAnim = TweenSequence<double>([
+      // 上升阶段 (40%的时间)：快速冲高，动能转化为势能
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: _jumpHeight)
+            .chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 40,
+      ),
+      // 下落阶段 (60%的时间)：加速下落并带有弹跳落地效果
+      TweenSequenceItem(
+        tween: Tween(begin: _jumpHeight, end: 0.0)
+            .chain(CurveTween(curve: Curves.bounceOut)), // 落地弹跳
+        weight: 60,
+      ),
+    ]).animate(_controller);
+
+    // 4. 空中侧倾 (增加一点3D感，避免太死板)
+    _wobbleAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.05), weight: 25),
+      TweenSequenceItem(tween: Tween(begin: 0.05, end: -0.05), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: -0.05, end: 0.0), weight: 25),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -54,10 +84,47 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
     });
   }
 
+  // 🖼️ 性能关键：预加载图片防止第一下卡顿
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _precacheImages();
+  }
+
+  void _precacheImages() {
+    // 🧠 [智能计算] 获取当前屏幕的像素密度
+    // 比如 iPhone 14 Pro 是 3.0，那么 300 * 3 = 900 像素
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final targetWidth = (300 * pixelRatio).toInt(); // 300 是组件的逻辑宽度
+
+    debugPrint("🚀 正在预加载图片，目标物理分辨率宽度: $targetWidth px");
+
+    for (int i = 1; i <= _frameCount; i++) {
+      final frameNum = i.toString().padLeft(4, '0');
+      // 预加载两组序列，使用动态计算的 targetWidth
+      precacheImage(
+        ResizeImage(
+          AssetImage("assets/images/coin_anim/heads_$frameNum.png"), 
+          width: targetWidth, 
+          policy: ResizeImagePolicy.fit, // 确保不超过指定宽度
+        ), 
+        context
+      );
+      precacheImage(
+        ResizeImage(
+          AssetImage("assets/images/coin_anim/tails_$frameNum.png"), 
+          width: targetWidth, 
+          policy: ResizeImagePolicy.fit,
+        ), 
+        context
+      );
+    }
+  }
+
   void _flip() {
     if (_controller.isAnimating) return;
 
-    // 1. 决定结果
+    // 1. 决定结果 (50/50 概率)
     final isHeads = math.Random().nextBool();
     
     setState(() {
@@ -83,19 +150,20 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _flip,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          // 1. 计算当前应该显示第几张图
-          // 如果没在播放动画，就显示最后一张（静止态）
+      // 🚀 [性能优化] 增加 RepaintBoundary
+      // 告诉 Flutter：这个组件内部变动时，不要去重绘外面的背景！
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+          // 计算当前帧索引
           int currentFrame = _controller.isAnimating 
               ? _frameAnim.value.floor() 
-              : (_frameCount - 1); // 默认显示最后一张（落地状态）
+              : (_frameCount - 1); // 静止时显示最后一帧
 
-          // 2. 构建图片路径
-          // 注意：实际文件名是 heads_0001.png 到 heads_0040.png
+          // 构建路径: heads_00xx.png 或 tails_00xx.png
           final String prefix = _isHeadsSequence ? "heads" : "tails";
-          // 格式化为4位数，补0：1 -> 0001, 40 -> 0040
+          // 假设文件名是 0001 ~ 0040
           final String frameNumber = (currentFrame + 1).toString().padLeft(4, '0');
           final String path = "assets/images/coin_anim/${prefix}_$frameNumber.png";
 
@@ -104,39 +172,54 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
             height: 300,
             child: Stack(
               alignment: Alignment.center,
+              clipBehavior: Clip.none, // 允许动画飞出容器边界(如果需要)
               children: [
-                // 可以在这里加一个静态的影子图片
+                // --- A. 影子 (固定在地面) ---
                 Positioned(
-                  bottom: 20,
-                  child: Container(
-                    width: 120, 
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 15, 
-                          color: Colors.black.withOpacity(0.5)
-                        )
-                      ],
+                  bottom: 40,
+                  child: Opacity(
+                    // 飞得越高，影子越淡
+                    opacity: (1.0 - (_heightAnim.value / _jumpHeight)).clamp(0.2, 1.0),
+                    child: Transform.scale(
+                      // 飞得越高，影子越小
+                      scale: 1.0 - (_heightAnim.value / _jumpHeight) * 0.5,
+                      child: Container(
+                        width: 100, height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(100),
+                          boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(0.4))],
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 
-                // 序列帧主体
-                // gaplessPlayback: true 是关键，防止图片切换时闪烁
-                Image.asset(
-                  path,
-                  gaplessPlayback: true, 
-                  width: 300,
-                  height: 300,
-                  fit: BoxFit.contain,
+                // --- B. 硬币本体 (代码控制位移) ---
+                Transform.translate(
+                  // 核心：由 Flutter 控制 Y 轴位移，实现抛物线
+                  offset: Offset(0, _heightAnim.value),
+                  child: Transform.rotate(
+                    angle: _wobbleAnim.value, // 微小的 Z 轴摆动
+                    child: Image(
+                      // 使用动态计算的 targetWidth，确保高清显示
+                      image: ResizeImage(
+                        AssetImage(path), 
+                        width: (300 * MediaQuery.of(context).devicePixelRatio).toInt(),
+                        policy: ResizeImagePolicy.fit, // 确保不超过指定宽度
+                      ),
+                      gaplessPlayback: true, // 防止闪烁，必须保留
+                      filterQuality: FilterQuality.medium, // 提升抗锯齿质量
+                      width: 300,
+                      height: 300,
+                      fit: BoxFit.contain, // 确保图片完全在容器内
+                    ),
+                  ),
                 ),
               ],
             ),
           );
-        },
+        }),
       ),
     );
   }
