@@ -47,7 +47,6 @@ dependencies:
 
   # --- 🎨 视觉渲染引擎 (Rendering Engine) ---
   rive: ^0.13.4                 # 治愈模式核心：矢量动画运行时
-  model_viewer_plus: ^1.7.0     # 复古模式核心：3D模型渲染 (兼容性好)
   # 或者用 flutter_3d_controller 如果需要更底层的控制
 
   flutter_animate: ^4.5.0       # 声明式动画库 (用于微交互)
@@ -102,6 +101,7 @@ flutter:
   assets:
     - assets/audio/
     - assets/images/
+    - assets/images/coin_anim/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

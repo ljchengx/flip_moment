@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../features/decision/presentation/widgets/coin_flipper.dart';
+import '../../features/decision/presentation/widgets/frame_coin_flipper.dart';
 import '../skin_engine/skin_protocol.dart';
 import '../services/haptics/haptic_service.dart';
 
@@ -40,8 +40,8 @@ class VintageSkin implements AppSkin {
     required VoidCallback onTap,
     Function(String)? onResult,
   }) {
-    // 返回复古硬币组件
-    return CoinFlipper(
+    // 返回序列帧硬币组件
+    return FrameCoinFlipper(
       skin: this,
       onFlipStart: onTap,   // 将通用点击映射到硬币的"开始抛掷"
       onFlipEnd: onResult,  // 将通用结果映射到硬币的"抛掷结束"
