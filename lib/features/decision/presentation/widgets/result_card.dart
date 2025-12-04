@@ -121,84 +121,200 @@ class _ResultCardState extends State<ResultCard> {
   }
 
   Widget _buildVintageTicket(AppLocalizations loc, bool isYes) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = screenWidth * 0.82;
-    final themeColor = isYes ? const Color(0xFF2E7D32) : const Color(0xFF8F3B35);
+    // --- 1. 动态视觉元素配置 ---
+    final isApproved = isYes; // 假设 isYes 决定通过/不通过
+    
+    // 颜色配置：经典红黑配色 (Vintage Noir & Rouge)
+    final primaryTextColor = const Color(0xFF1D1D1D); 
+    final stampColor = isApproved ? const Color(0xFFB71C1C) : const Color(0xFF455A64);
+    final paperColor = const Color(0xFFF9F7F0); // 米白道林纸
+
+    // 文字配置
+    final mainTitle = _fortune.mainTitle.toUpperCase();
+    final subTitle = _fortune.subTitle;
+    
+    // 水印符号配置 (太阳代表吉，云朵/月亮代表凶)
+    final watermarkIcon = isApproved ? Icons.wb_sunny_outlined : Icons.nights_stay_outlined;
+    
+    // 印章文字
+    final stampText = isApproved ? "APPROVED" : "NEXT TIME";
+
+    // 日期与序列号
+    final now = DateTime.now();
+    final dateStr = "${now.day.toString().padLeft(2, '0')} . ${now.month.toString().padLeft(2, '0')} . ${now.year}";
+    final serialNo = "NO.${now.millisecondsSinceEpoch.toString().substring(8)}"; // 取后几位
 
     return Container(
-      width: cardWidth,
+      // 让卡片撑满宽度，并在垂直方向留出呼吸空间
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2EFE5),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [BoxShadow(color: Colors.black45, blurRadius: 30, offset: const Offset(0, 15))],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: themeColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-            ),
-          ),
-          
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                Text(
-                  _fortune.mainTitle.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 42,
-                    height: 1.0,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF1A1C1E),
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(width: 40, height: 2, color: themeColor),
-                const SizedBox(height: 16),
-                Text(
-                  _fortune.subTitle,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.courierPrime(
-                    fontSize: 14,
-                    color: Colors.grey[800],
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildVintageStamp(loc),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "NO.${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}",
-                          style: GoogleFonts.robotoMono(fontSize: 10, color: Colors.grey[500]),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(height: 12, width: 60, color: Colors.black87), 
-                      ],
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-          
-          CustomPaint(
-            size: Size(cardWidth, 12),
-            painter: _DashedLinePainter(color: Colors.grey[400]!),
-          ),
-          const SizedBox(height: 16),
+        color: paperColor,
+        borderRadius: BorderRadius.circular(6), // 复古纸张圆角很小
+        boxShadow: [
+          // 纸张的自然投影：深浅两层增加立体感
+          BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 3, offset: const Offset(0, 1)),
         ],
+      ),
+      // 使用 ClipRRect 确保水印不会溢出卡片圆角
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: Stack(
+          children: [
+            // --- 2. 背景层：巨大水印符号 (Watermark) ---
+            Positioned(
+              right: -40,
+              top: 60,
+              child: Transform.rotate(
+                angle: 0.2, // 微微倾斜
+                child: Icon(
+                  watermarkIcon,
+                  size: 280, // 巨大尺寸！
+                  color: Colors.black.withOpacity(0.04), // 极低透明度
+                ),
+              ),
+            ),
+            
+            // --- 3. 纹理层：纸张线条 (可选，增加细腻度) ---
+            Positioned.fill(
+               child: CustomPaint(painter: PaperLinesPainter()),
+            ),
+
+            // --- 4. 内容层：核心信息 ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 顶部：序列号与日期
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(serialNo, style: GoogleFonts.courierPrime(fontSize: 12, color: Colors.black38, letterSpacing: 1.5)),
+                      Text(dateStr, style: GoogleFonts.courierPrime(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  const Divider(color: Colors.black87, thickness: 1.5), 
+                  const SizedBox(height: 48), // 大面积留白
+
+                  // 中部：结果主标题 (Typography)
+                  Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        mainTitle,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 72, 
+                          height: 1.0,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1.0,
+                          color: primaryTextColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 副标题 (中文建议用 MaShanZheng 或系统衬线体)
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      color: Colors.black.withOpacity(0.05), // 文字背后的浅底色，增强层次
+                      child: Text(
+                        subTitle,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.maShanZheng(
+                          fontSize: 20,
+                          color: Colors.black54,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 64), // 撑开底部空间
+
+                  // 底部：功能区
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 左侧：幸运指引 (Lucky Guide)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.palette_outlined, size: 14, color: Colors.black45),
+                              const SizedBox(width: 4),
+                              Text("LUCKY COLOR", style: GoogleFonts.oswald(fontSize: 10, color: Colors.black45, letterSpacing: 1)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Container(
+                                width: 10, height: 10, 
+                                decoration: BoxDecoration(color: _fortune.luckyColor, shape: BoxShape.circle),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(_fortune.luckyColorName, style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      // 右侧：视觉印章 (The Stamp)
+                      Transform.rotate(
+                        angle: -0.25,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: stampColor.withOpacity(0.7), width: 3),
+                            borderRadius: BorderRadius.circular(8),
+                            // 印章内部稍微做旧
+                            color: stampColor.withOpacity(0.05), 
+                          ),
+                          child: Text(
+                            stampText,
+                            style: GoogleFonts.blackOpsOne(
+                              fontSize: 22,
+                              color: stampColor.withOpacity(0.9),
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 底部装饰：条形码纹理
+                  Opacity(
+                    opacity: 0.3,
+                    child: SizedBox(
+                      height: 12,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(40, (index) => Container(
+                          width: index % 2 == 0 ? 2 : 1,
+                          margin: EdgeInsets.only(right: index % 4 == 0 ? 4 : 2),
+                          color: Colors.black,
+                        )),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -206,59 +322,91 @@ class _ResultCardState extends State<ResultCard> {
   Widget _buildHealingNote(AppLocalizations loc, bool isYes) {
     final screenWidth = MediaQuery.of(context).size.width;
     
+    // 治愈系配色：奶呼呼的渐变
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isYes 
+        ? [const Color(0xFFFFF9C4), const Color(0xFFFFE0B2)] // 奶黄 -> 奶橘
+        : [const Color(0xFFE1F5FE), const Color(0xFFE0F7FA)], // 奶蓝 -> 奶绿
+    );
+
     return Transform.rotate(
-      angle: 0.03,
+      angle: 0.03, // 微微倾斜，像随手贴的
       child: Container(
         width: screenWidth * 0.75,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          gradient: gradient,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(60), // 不规则圆角，增加可爱感
+            bottomRight: Radius.circular(20),
+          ),
           boxShadow: [
-            BoxShadow(color: widget.skin.primaryAccent.withOpacity(0.2), blurRadius: 20, spreadRadius: 5)
+            // 弥散柔光阴影，颜色跟随主色
+            BoxShadow(
+              color: gradient.colors.last.withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
           ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              isYes ? "🎉" : "🍵",
-              style: const TextStyle(fontSize: 60),
-            ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+            // ✨ 关键点：用巨大的 Emoji 代替图标，这是小红书最爱
+            Text(isYes ? "🎉" : "🍵", style: const TextStyle(fontSize: 80))
+                .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             
             Text(
               _fortune.mainTitle,
-              style: GoogleFonts.zcoolKuaiLe(
-                fontSize: 36,
-                color: widget.skin.primaryAccent,
+              style: GoogleFonts.zcoolKuaiLe( // 你的代码里已经用了这个，很棒！
+                fontSize: 40,
+                color: const Color(0xFF5D4037), // 暖咖色文字，不要用纯黑
+                fontWeight: FontWeight.w600,
               ),
             ),
+            
             const SizedBox(height: 12),
-            Text(
-              _fortune.subTitle,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.maShanZheng(
-                fontSize: 18,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 30),
+            
+            // 像手账里的胶带文字背景
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: _fortune.luckyColor.withOpacity(0.2),
+                color: Colors.white.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                _fortune.subTitle,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.maShanZheng(fontSize: 18, color: const Color(0xFF5C5C5C)),
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // 幸运色药丸
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: _fortune.luckyColor.withOpacity(0.3), width: 2),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.palette, size: 14, color: _fortune.luckyColor),
-                  const SizedBox(width: 6),
+                  Icon(Icons.palette_rounded, size: 16, color: _fortune.luckyColor),
+                  const SizedBox(width: 8),
                   Text(
                     "${loc.luckyColor}: ${_fortune.luckyColorName}",
-                    style: TextStyle(color: _fortune.luckyColor, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.quicksand(
+                      color: _fortune.luckyColor, 
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
                 ],
               ),
@@ -438,10 +586,19 @@ class _ResultCardState extends State<ResultCard> {
     required bool isPrimary,
     required AppSkin skin,
   }) {
-    final Color btnColor = skin.mode == SkinMode.cyber 
-        ? (isPrimary ? const Color(0xFFCCFF00) : Colors.white) 
-        : (isPrimary ? Colors.white : Colors.white70);
-    
+    // 根据皮肤模式确定主题色
+    Color themeColor;
+    if (skin.mode == SkinMode.cyber) {
+      themeColor = const Color(0xFFCCFF00);
+    } else if (skin.mode == SkinMode.healing) {
+      themeColor = skin.primaryAccent;
+    } else if (skin.mode == SkinMode.vintage) {
+      themeColor = skin.primaryAccent;
+    } else {
+      themeColor = Colors.white;
+    }
+
+    final Color btnColor = isPrimary ? themeColor : Colors.white.withOpacity(0.1);
     final Color textColor = skin.mode == SkinMode.cyber && isPrimary 
         ? Colors.black 
         : Colors.white;
@@ -455,8 +612,15 @@ class _ResultCardState extends State<ResultCard> {
             width: 56, height: 56,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isPrimary ? btnColor : Colors.white.withOpacity(0.1),
-              border: isPrimary ? null : Border.all(color: Colors.white, width: 1.5),
+              color: btnColor,
+              border: isPrimary ? null : Border.all(color: themeColor.withOpacity(0.6), width: 1.5),
+              boxShadow: isPrimary ? [
+                BoxShadow(
+                  color: themeColor.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ] : null,
             ),
             child: Icon(icon, color: textColor, size: 26),
           ),
@@ -491,6 +655,24 @@ class _DashedLinePainter extends CustomPainter {
       startX += dashWidth + dashSpace;
     }
   }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// 别忘了把这个 Painter 放在文件底部或者工具类里
+class PaperLinesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black.withOpacity(0.02) // 极淡的线条
+      ..strokeWidth = 1;
+      
+    // 画横线，模拟笔记本内页
+    for (double i = 40; i < size.height - 40; i += 30) {
+      canvas.drawLine(Offset(20, i), Offset(size.width - 20, i), paint);
+    }
+  }
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
