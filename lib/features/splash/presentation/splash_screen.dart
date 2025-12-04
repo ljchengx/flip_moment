@@ -37,27 +37,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   /// 🔥【核心新增】预加载静态帧
-  /// 只加载硬币静止时显示的那张图 (第40帧)，保证进场秒开
   void _warmupCriticalAssets() {
     final skin = ref.read(currentSkinProvider);
     
-    // 只有 Vintage 模式有这个问题，其他模式资源很轻
     if (skin.mode == SkinMode.vintage) {
-      // 必须获取与 FrameCoinFlipper 一致的物理像素宽度，否则缓存 key 不匹配
-      // 注意：SplashScreen 初始化时 context 可能还没拿到 MediaQuery，
-      // 但在 _bootstrap 执行时已经过了第一帧，通常是安全的。
-      // 为了保险，我们可以包裹在 addPostFrameCallback 里，或者直接 try-catch
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         
         try {
-          final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-          final targetWidth = (300 * pixelRatio).toInt(); // 300 是硬币组件的逻辑宽度
-
-          debugPrint("🔥 [Splash] 预热 Vintage 静态帧...");
+          final mediaQuery = MediaQuery.of(context);
+          final pixelRatio = mediaQuery.devicePixelRatio;
           
-          // 预加载静止帧 (heads_0040.png 和 tails_0040.png)
-          // 这样进入主页后，Image 组件能直接从内存缓存读取
+          // 🔥【关键】必须与 FrameCoinFlipper 的 _kCoinSizeRatio 保持一致 (0.65)
+          final logicalWidth = mediaQuery.size.width * 0.65;
+          final targetWidth = (logicalWidth * pixelRatio).toInt();
+
+          debugPrint("🔥 [Splash] 预热 Vintage 静态帧 (宽度: $targetWidth)...");
+          
+          // ... precacheImage 代码保持不变，使用新的 targetWidth
           precacheImage(
             ResizeImage(
               const AssetImage("assets/images/coin_anim/heads_0040.png"), 
@@ -75,7 +72,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             context,
           );
         } catch (e) {
-          debugPrint("⚠️ 预热失败 (可能是 Context 问题): $e");
+          debugPrint("⚠️ 预热失败: $e");
         }
       });
     }

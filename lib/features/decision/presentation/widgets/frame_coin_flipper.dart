@@ -35,6 +35,9 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
   final int _frameCount = 40; // 你的序列帧总数
   final double _jumpHeight = -250.0; // 向上飞的高度 (负数向上)
 
+  // 🔥【新增】定义硬币相对于屏幕宽度的比例
+  static const double _kCoinSizeRatio = 0.65;
+
   @override
   void initState() {
     super.initState();
@@ -94,21 +97,22 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
     });
   }
 
-  // 🔥【修改 2】重构预加载逻辑：异步 + 分批
+  // 修改懒加载逻辑，使用响应式尺寸
   Future<void> _lazyLoadAnimationFrames() async {
     if (!mounted) return;
     
     // 1. 获取屏幕参数
-    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final targetWidth = (300 * pixelRatio).toInt();
-
-    // 2. 异步分批加载
-    // 我们不需要加载第 40 帧 (i=40)，因为 Splash 页已经预热过了
-    // 只需要加载动画过程中的帧 (1~39)
-    // 另外：为了极致体验，我们可以优先加载前 10 帧，防止用户手速太快点击
+    final mediaQuery = MediaQuery.of(context);
+    final pixelRatio = mediaQuery.devicePixelRatio;
     
-    const int batchSize = 5; // 每加载 5 张图，就休息一下
+    // 🔥【核心修改】计算响应式宽度
+    // 逻辑宽度 = 屏幕宽度 * 0.65
+    final logicalWidth = mediaQuery.size.width * _kCoinSizeRatio;
+    // 物理缓存宽度 = 逻辑宽度 * 密度
+    final targetWidth = (logicalWidth * pixelRatio).toInt();
 
+    // ... 后续循环逻辑保持不变，targetWidth 已更新
+    const int batchSize = 5;
     for (int i = 1; i < _frameCount; i++) {
       if (!mounted) return;
 
@@ -141,7 +145,7 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
       }
     }
     
-    debugPrint("✅ [CoinFlipper] 所有动画帧后台加载完毕");
+    debugPrint("✅ [CoinFlipper] 响应式帧加载完毕，目标宽度: $targetWidth px");
   }
 
   void _flip() {
@@ -171,78 +175,80 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
 
   @override
   Widget build(BuildContext context) {
+    // 🔥【核心修改】在 build 中计算尺寸
+    final screenWidth = MediaQuery.of(context).size.width;
+    final coinSize = screenWidth * _kCoinSizeRatio;
+
     return GestureDetector(
       onTap: _flip,
-      // 🚀 [性能优化] 增加 RepaintBoundary
-      // 告诉 Flutter：这个组件内部变动时，不要去重绘外面的背景！
       child: RepaintBoundary(
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-          // 计算当前帧索引
-          int currentFrame = _controller.isAnimating 
+            // ... 计算 currentFrame 和 path 保持不变
+            int currentFrame = _controller.isAnimating 
               ? _frameAnim.value.floor() 
-              : (_frameCount - 1); // 静止时显示最后一帧
+              : (_frameCount - 1);
+            
+            final String prefix = _isHeadsSequence ? "heads" : "tails";
+            final String frameNumber = (currentFrame + 1).toString().padLeft(4, '0');
+            final String path = "assets/images/coin_anim/${prefix}_$frameNumber.png";
 
-          // 构建路径: heads_00xx.png 或 tails_00xx.png
-          final String prefix = _isHeadsSequence ? "heads" : "tails";
-          // 假设文件名是 0001 ~ 0040
-          final String frameNumber = (currentFrame + 1).toString().padLeft(4, '0');
-          final String path = "assets/images/coin_anim/${prefix}_$frameNumber.png";
-
-          return SizedBox(
-            width: 300,
-            height: 300,
-            child: Stack(
-              alignment: Alignment.center,
-              clipBehavior: Clip.none, // 允许动画飞出容器边界(如果需要)
-              children: [
-                // --- A. 影子 (固定在地面) ---
-                Positioned(
-                  bottom: 40,
-                  child: Opacity(
-                    // 飞得越高，影子越淡
-                    opacity: (1.0 - (_heightAnim.value / _jumpHeight)).clamp(0.2, 1.0),
-                    child: Transform.scale(
-                      // 飞得越高，影子越小
-                      scale: 1.0 - (_heightAnim.value / _jumpHeight) * 0.5,
-                      child: Container(
-                        width: 100, height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(100),
-                          boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(0.4))],
+            // 🔥【核心修改】使用动态 coinSize
+            return SizedBox(
+              width: coinSize,
+              height: coinSize,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  // --- A. 影子 ---
+                  Positioned(
+                    bottom: 40, // 这里也可以考虑用 coinSize * 0.15 变成响应式，暂且保持
+                    child: Opacity(
+                      opacity: (1.0 - (_heightAnim.value / _jumpHeight)).clamp(0.2, 1.0),
+                      child: Transform.scale(
+                        scale: 1.0 - (_heightAnim.value / _jumpHeight) * 0.5,
+                        child: Container(
+                          // 影子宽度也随硬币变小
+                          width: coinSize * 0.4, 
+                          height: coinSize * 0.05,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(100),
+                            boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(0.4))],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                
-                // --- B. 硬币本体 (代码控制位移) ---
-                Transform.translate(
-                  // 核心：由 Flutter 控制 Y 轴位移，实现抛物线
-                  offset: Offset(0, _heightAnim.value),
-                  child: Transform.rotate(
-                    angle: _wobbleAnim.value, // 微小的 Z 轴摆动
-                    child: Image(
-                      // 使用动态计算的 targetWidth，确保高清显示
-                      image: ResizeImage(
-                        AssetImage(path), 
-                        width: (300 * MediaQuery.of(context).devicePixelRatio).toInt(),
-                        policy: ResizeImagePolicy.fit, // 确保不超过指定宽度
+                  
+                  // --- B. 硬币本体 ---
+                  Transform.translate(
+                    offset: Offset(0, _heightAnim.value),
+                    child: Transform.rotate(
+                      angle: _wobbleAnim.value,
+                      child: Image(
+                        // 这里的 ResizeImage 宽度计算必须与 _lazyLoadAnimationFrames 一致
+                        image: ResizeImage(
+                          AssetImage(path), 
+                          width: (coinSize * MediaQuery.of(context).devicePixelRatio).toInt(),
+                          policy: ResizeImagePolicy.fit,
+                        ),
+                        gaplessPlayback: true,
+                        filterQuality: FilterQuality.medium,
+                        // 🔥 使用动态尺寸
+                        width: coinSize,
+                        height: coinSize,
+                        fit: BoxFit.contain,
                       ),
-                      gaplessPlayback: true, // 防止闪烁，必须保留
-                      filterQuality: FilterQuality.medium, // 提升抗锯齿质量
-                      width: 300,
-                      height: 300,
-                      fit: BoxFit.contain, // 确保图片完全在容器内
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
