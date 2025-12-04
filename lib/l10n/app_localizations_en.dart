@@ -42,6 +42,159 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeButton => 'CLOSE';
 
   @override
+  String get scanForLuck => 'SCAN FOR LUCK';
+
+  @override
+  String get luckyIndex => 'LUCK INDEX';
+
+  @override
+  String get luckyColor => 'LUCKY COLOR';
+
+  @override
+  String get vinYes1 => 'UNDOUBTEDLY';
+
+  @override
+  String get vinYesSub1 => 'Destiny has spoken.';
+
+  @override
+  String get vinYes2 => 'PROCEED';
+
+  @override
+  String get vinYesSub2 => 'Intuition is your guide.';
+
+  @override
+  String get vinYes3 => 'CERTAINLY';
+
+  @override
+  String get vinYesSub3 => 'As natural as sunrise.';
+
+  @override
+  String get vinNo1 => 'PATIENCE';
+
+  @override
+  String get vinNoSub1 => 'Time holds better answers.';
+
+  @override
+  String get vinNo2 => 'HALT';
+
+  @override
+  String get vinNoSub2 => 'A closed door is protection.';
+
+  @override
+  String get vinNo3 => 'NOT YET';
+
+  @override
+  String get vinNoSub3 => 'Waiting is wisdom.';
+
+  @override
+  String get heaYes1 => 'YAY!';
+
+  @override
+  String get heaYesSub1 => 'Do what makes you happy!';
+
+  @override
+  String get heaYes2 => 'GO FOR IT';
+
+  @override
+  String get heaYesSub2 => 'The world loves you today.';
+
+  @override
+  String get heaYes3 => 'SURE THING';
+
+  @override
+  String get heaYesSub3 => 'Trust yourself, you got this.';
+
+  @override
+  String get heaNo1 => 'TAKE A NAP';
+
+  @override
+  String get heaNoSub1 => 'Hugs! No need to force it.';
+
+  @override
+  String get heaNo2 => 'SLOW DOWN';
+
+  @override
+  String get heaNoSub2 => 'It\'s not a big deal anyway.';
+
+  @override
+  String get heaNo3 => 'WAIT A BIT';
+
+  @override
+  String get heaNoSub3 => 'Something better is coming.';
+
+  @override
+  String get cybYes1 => 'GRANTED';
+
+  @override
+  String get cybYesSub1 => 'ROOT_ACCESS_GRANTED';
+
+  @override
+  String get cybYes2 => 'LINKED';
+
+  @override
+  String get cybYesSub2 => 'UPLINK_ESTABLISHED';
+
+  @override
+  String get cybYes3 => 'EXECUTE';
+
+  @override
+  String get cybYesSub3 => 'EXECUTE_IMMEDIATELY';
+
+  @override
+  String get cybNo1 => 'DENIED';
+
+  @override
+  String get cybNoSub1 => 'CONNECTION_REFUSED';
+
+  @override
+  String get cybNo2 => 'BLOCKED';
+
+  @override
+  String get cybNoSub2 => 'FIREWALL_BLOCKING';
+
+  @override
+  String get cybNo3 => 'NO_DATA';
+
+  @override
+  String get cybNoSub3 => 'INSUFFICIENT_DATA';
+
+  @override
+  String get wisYes1 => 'STARDUST';
+
+  @override
+  String get wisYesSub1 => 'The galaxy winks at you.';
+
+  @override
+  String get wisYes2 => 'MIRACLE';
+
+  @override
+  String get wisYesSub2 => 'Manifestation in progress.';
+
+  @override
+  String get wisYes3 => 'GRANTED';
+
+  @override
+  String get wisYesSub3 => 'As you wish.';
+
+  @override
+  String get wisNo1 => 'FOGGY';
+
+  @override
+  String get wisNoSub1 => 'The path is not clear yet.';
+
+  @override
+  String get wisNo2 => 'SILENCE';
+
+  @override
+  String get wisNoSub2 => 'Love yourself first.';
+
+  @override
+  String get wisNo3 => 'DELAY';
+
+  @override
+  String get wisNoSub3 => 'Wait for the bloom.';
+
+  @override
   String get meTitle => 'Me';
 
   @override

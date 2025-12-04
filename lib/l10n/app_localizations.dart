@@ -164,6 +164,312 @@ abstract class AppLocalizations {
   /// **'CLOSE'**
   String get closeButton;
 
+  /// No description provided for @scanForLuck.
+  ///
+  /// In en, this message translates to:
+  /// **'SCAN FOR LUCK'**
+  String get scanForLuck;
+
+  /// No description provided for @luckyIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'LUCK INDEX'**
+  String get luckyIndex;
+
+  /// No description provided for @luckyColor.
+  ///
+  /// In en, this message translates to:
+  /// **'LUCKY COLOR'**
+  String get luckyColor;
+
+  /// No description provided for @vinYes1.
+  ///
+  /// In en, this message translates to:
+  /// **'UNDOUBTEDLY'**
+  String get vinYes1;
+
+  /// No description provided for @vinYesSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'Destiny has spoken.'**
+  String get vinYesSub1;
+
+  /// No description provided for @vinYes2.
+  ///
+  /// In en, this message translates to:
+  /// **'PROCEED'**
+  String get vinYes2;
+
+  /// No description provided for @vinYesSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'Intuition is your guide.'**
+  String get vinYesSub2;
+
+  /// No description provided for @vinYes3.
+  ///
+  /// In en, this message translates to:
+  /// **'CERTAINLY'**
+  String get vinYes3;
+
+  /// No description provided for @vinYesSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'As natural as sunrise.'**
+  String get vinYesSub3;
+
+  /// No description provided for @vinNo1.
+  ///
+  /// In en, this message translates to:
+  /// **'PATIENCE'**
+  String get vinNo1;
+
+  /// No description provided for @vinNoSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'Time holds better answers.'**
+  String get vinNoSub1;
+
+  /// No description provided for @vinNo2.
+  ///
+  /// In en, this message translates to:
+  /// **'HALT'**
+  String get vinNo2;
+
+  /// No description provided for @vinNoSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'A closed door is protection.'**
+  String get vinNoSub2;
+
+  /// No description provided for @vinNo3.
+  ///
+  /// In en, this message translates to:
+  /// **'NOT YET'**
+  String get vinNo3;
+
+  /// No description provided for @vinNoSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting is wisdom.'**
+  String get vinNoSub3;
+
+  /// No description provided for @heaYes1.
+  ///
+  /// In en, this message translates to:
+  /// **'YAY!'**
+  String get heaYes1;
+
+  /// No description provided for @heaYesSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'Do what makes you happy!'**
+  String get heaYesSub1;
+
+  /// No description provided for @heaYes2.
+  ///
+  /// In en, this message translates to:
+  /// **'GO FOR IT'**
+  String get heaYes2;
+
+  /// No description provided for @heaYesSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'The world loves you today.'**
+  String get heaYesSub2;
+
+  /// No description provided for @heaYes3.
+  ///
+  /// In en, this message translates to:
+  /// **'SURE THING'**
+  String get heaYes3;
+
+  /// No description provided for @heaYesSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust yourself, you got this.'**
+  String get heaYesSub3;
+
+  /// No description provided for @heaNo1.
+  ///
+  /// In en, this message translates to:
+  /// **'TAKE A NAP'**
+  String get heaNo1;
+
+  /// No description provided for @heaNoSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'Hugs! No need to force it.'**
+  String get heaNoSub1;
+
+  /// No description provided for @heaNo2.
+  ///
+  /// In en, this message translates to:
+  /// **'SLOW DOWN'**
+  String get heaNo2;
+
+  /// No description provided for @heaNoSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s not a big deal anyway.'**
+  String get heaNoSub2;
+
+  /// No description provided for @heaNo3.
+  ///
+  /// In en, this message translates to:
+  /// **'WAIT A BIT'**
+  String get heaNo3;
+
+  /// No description provided for @heaNoSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'Something better is coming.'**
+  String get heaNoSub3;
+
+  /// No description provided for @cybYes1.
+  ///
+  /// In en, this message translates to:
+  /// **'GRANTED'**
+  String get cybYes1;
+
+  /// No description provided for @cybYesSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'ROOT_ACCESS_GRANTED'**
+  String get cybYesSub1;
+
+  /// No description provided for @cybYes2.
+  ///
+  /// In en, this message translates to:
+  /// **'LINKED'**
+  String get cybYes2;
+
+  /// No description provided for @cybYesSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'UPLINK_ESTABLISHED'**
+  String get cybYesSub2;
+
+  /// No description provided for @cybYes3.
+  ///
+  /// In en, this message translates to:
+  /// **'EXECUTE'**
+  String get cybYes3;
+
+  /// No description provided for @cybYesSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'EXECUTE_IMMEDIATELY'**
+  String get cybYesSub3;
+
+  /// No description provided for @cybNo1.
+  ///
+  /// In en, this message translates to:
+  /// **'DENIED'**
+  String get cybNo1;
+
+  /// No description provided for @cybNoSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'CONNECTION_REFUSED'**
+  String get cybNoSub1;
+
+  /// No description provided for @cybNo2.
+  ///
+  /// In en, this message translates to:
+  /// **'BLOCKED'**
+  String get cybNo2;
+
+  /// No description provided for @cybNoSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'FIREWALL_BLOCKING'**
+  String get cybNoSub2;
+
+  /// No description provided for @cybNo3.
+  ///
+  /// In en, this message translates to:
+  /// **'NO_DATA'**
+  String get cybNo3;
+
+  /// No description provided for @cybNoSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'INSUFFICIENT_DATA'**
+  String get cybNoSub3;
+
+  /// No description provided for @wisYes1.
+  ///
+  /// In en, this message translates to:
+  /// **'STARDUST'**
+  String get wisYes1;
+
+  /// No description provided for @wisYesSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'The galaxy winks at you.'**
+  String get wisYesSub1;
+
+  /// No description provided for @wisYes2.
+  ///
+  /// In en, this message translates to:
+  /// **'MIRACLE'**
+  String get wisYes2;
+
+  /// No description provided for @wisYesSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifestation in progress.'**
+  String get wisYesSub2;
+
+  /// No description provided for @wisYes3.
+  ///
+  /// In en, this message translates to:
+  /// **'GRANTED'**
+  String get wisYes3;
+
+  /// No description provided for @wisYesSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'As you wish.'**
+  String get wisYesSub3;
+
+  /// No description provided for @wisNo1.
+  ///
+  /// In en, this message translates to:
+  /// **'FOGGY'**
+  String get wisNo1;
+
+  /// No description provided for @wisNoSub1.
+  ///
+  /// In en, this message translates to:
+  /// **'The path is not clear yet.'**
+  String get wisNoSub1;
+
+  /// No description provided for @wisNo2.
+  ///
+  /// In en, this message translates to:
+  /// **'SILENCE'**
+  String get wisNo2;
+
+  /// No description provided for @wisNoSub2.
+  ///
+  /// In en, this message translates to:
+  /// **'Love yourself first.'**
+  String get wisNoSub2;
+
+  /// No description provided for @wisNo3.
+  ///
+  /// In en, this message translates to:
+  /// **'DELAY'**
+  String get wisNo3;
+
+  /// No description provided for @wisNoSub3.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for the bloom.'**
+  String get wisNoSub3;
+
   /// No description provided for @meTitle.
   ///
   /// In en, this message translates to:

@@ -42,6 +42,159 @@ class AppLocalizationsZh extends AppLocalizations {
   String get closeButton => '关闭';
 
   @override
+  String get scanForLuck => '扫码接收好运';
+
+  @override
+  String get luckyIndex => '运势指数';
+
+  @override
+  String get luckyColor => '幸运色';
+
+  @override
+  String get vinYes1 => '确凿无疑';
+
+  @override
+  String get vinYesSub1 => '命运已写下注脚。';
+
+  @override
+  String get vinYes2 => '行动之时';
+
+  @override
+  String get vinYesSub2 => '这种感觉名为直觉。';
+
+  @override
+  String get vinYes3 => '当然';
+
+  @override
+  String get vinYesSub3 => '就像日升月落般自然。';
+
+  @override
+  String get vinNo1 => '稍安勿躁';
+
+  @override
+  String get vinNoSub1 => '时间会给出更好的答案。';
+
+  @override
+  String get vinNo2 => '止步';
+
+  @override
+  String get vinNoSub2 => '有些路不通也是一种保护。';
+
+  @override
+  String get vinNo3 => '未到时候';
+
+  @override
+  String get vinNoSub3 => '等待是智慧的体现。';
+
+  @override
+  String get heaYes1 => '好耶！';
+
+  @override
+  String get heaYesSub1 => '去做让自己开心的事吧！';
+
+  @override
+  String get heaYes2 => '去冲鸭';
+
+  @override
+  String get heaYesSub2 => '今天全世界都偏爱你。';
+
+  @override
+  String get heaYes3 => '没问题';
+
+  @override
+  String get heaYesSub3 => '相信自己，你超棒的。';
+
+  @override
+  String get heaNo1 => '休息下';
+
+  @override
+  String get heaNoSub1 => '抱抱你，不开心就先不做。';
+
+  @override
+  String get heaNo2 => '慢慢来';
+
+  @override
+  String get heaNoSub2 => '也没什么大不了的嘛。';
+
+  @override
+  String get heaNo3 => '再等等';
+
+  @override
+  String get heaNoSub3 => '也许会有转机哦。';
+
+  @override
+  String get cybYes1 => '权限授予';
+
+  @override
+  String get cybYesSub1 => 'ROOT_ACCESS_GRANTED';
+
+  @override
+  String get cybYes2 => '信号接通';
+
+  @override
+  String get cybYesSub2 => 'UPLINK_ESTABLISHED';
+
+  @override
+  String get cybYes3 => '执行';
+
+  @override
+  String get cybYesSub3 => 'EXECUTE_IMMEDIATELY';
+
+  @override
+  String get cybNo1 => '连接被拒';
+
+  @override
+  String get cybNoSub1 => 'CONNECTION_REFUSED';
+
+  @override
+  String get cybNo2 => '系统阻断';
+
+  @override
+  String get cybNoSub2 => 'FIREWALL_BLOCKING';
+
+  @override
+  String get cybNo3 => '数据不足';
+
+  @override
+  String get cybNoSub3 => 'INSUFFICIENT_DATA';
+
+  @override
+  String get wisYes1 => '星辰回应';
+
+  @override
+  String get wisYesSub1 => '银河系向你眨了眨眼。';
+
+  @override
+  String get wisYes2 => '神迹';
+
+  @override
+  String get wisYesSub2 => '愿望正在显化中。';
+
+  @override
+  String get wisYes3 => '如愿';
+
+  @override
+  String get wisYesSub3 => '所念皆星河。';
+
+  @override
+  String get wisNo1 => '迷雾';
+
+  @override
+  String get wisNoSub1 => '前路暂未清晰。';
+
+  @override
+  String get wisNo2 => '静默';
+
+  @override
+  String get wisNoSub2 => '宇宙让你先爱自己。';
+
+  @override
+  String get wisNo3 => '暂缓';
+
+  @override
+  String get wisNoSub3 => '时机未到，静待花开。';
+
+  @override
   String get meTitle => '我的';
 
   @override
