@@ -27,6 +27,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recordSaved => '记录已保存';
 
   @override
+  String get flipMomentLogo => 'FLIP MOMENT';
+
+  @override
+  String get resultCardTitle => '答案';
+
+  @override
+  String get resultCardSubtitle => '相信你的直觉。';
+
+  @override
+  String get shareButton => '分享';
+
+  @override
+  String get closeButton => '关闭';
+
+  @override
   String get meTitle => '我的';
 
   @override

@@ -66,14 +66,12 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
       _pendingLevelUp = true; // 埋下彩蛋
     });
 
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _currentResult = result;
-          _showResult = true; // 此时只显示结果卡片，干干净净
-        });
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _currentResult = result;
+        _showResult = true; 
+      });
+    }
   }
 
   // 关闭结果卡片

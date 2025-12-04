@@ -8,6 +8,13 @@
   "resultNo": "NO",
   "recordSaved": "Record saved",
 
+  "@_RESULT_CARD": {},
+  "flipMomentLogo": "FLIP MOMENT",
+  "resultCardTitle": "The Answer",
+  "resultCardSubtitle": "Trust your intuition.",
+  "shareButton": "SHARE",
+  "closeButton": "CLOSE",
+
   "@_PROFILE_SCREEN": {},
   "meTitle": "Me",
   "identityTitle": "Lv.5 Fate Navigator",

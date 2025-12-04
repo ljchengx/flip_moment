@@ -8,6 +8,13 @@
   "resultNo": "No",
   "recordSaved": "记录已保存",
 
+  "@_RESULT_CARD": {},
+  "flipMomentLogo": "FLIP MOMENT",
+  "resultCardTitle": "答案",
+  "resultCardSubtitle": "相信你的直觉。",
+  "shareButton": "分享",
+  "closeButton": "关闭",
+
   "@_PROFILE_SCREEN": {},
   "meTitle": "我的",
   "identityTitle": "Lv.5 命运领航员",

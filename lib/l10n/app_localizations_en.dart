@@ -27,6 +27,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordSaved => 'Record saved';
 
   @override
+  String get flipMomentLogo => 'FLIP MOMENT';
+
+  @override
+  String get resultCardTitle => 'The Answer';
+
+  @override
+  String get resultCardSubtitle => 'Trust your intuition.';
+
+  @override
+  String get shareButton => 'SHARE';
+
+  @override
+  String get closeButton => 'CLOSE';
+
+  @override
   String get meTitle => 'Me';
 
   @override

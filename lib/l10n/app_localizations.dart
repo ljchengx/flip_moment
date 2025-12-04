@@ -134,6 +134,36 @@ abstract class AppLocalizations {
   /// **'Record saved'**
   String get recordSaved;
 
+  /// No description provided for @flipMomentLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'FLIP MOMENT'**
+  String get flipMomentLogo;
+
+  /// No description provided for @resultCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Answer'**
+  String get resultCardTitle;
+
+  /// No description provided for @resultCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust your intuition.'**
+  String get resultCardSubtitle;
+
+  /// No description provided for @shareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'SHARE'**
+  String get shareButton;
+
+  /// No description provided for @closeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CLOSE'**
+  String get closeButton;
+
   /// No description provided for @meTitle.
   ///
   /// In en, this message translates to:
