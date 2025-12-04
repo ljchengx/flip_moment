@@ -36,19 +36,67 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _bootstrap();
   }
 
+  /// 🔥【核心新增】预加载静态帧
+  /// 只加载硬币静止时显示的那张图 (第40帧)，保证进场秒开
+  void _warmupCriticalAssets() {
+    final skin = ref.read(currentSkinProvider);
+    
+    // 只有 Vintage 模式有这个问题，其他模式资源很轻
+    if (skin.mode == SkinMode.vintage) {
+      // 必须获取与 FrameCoinFlipper 一致的物理像素宽度，否则缓存 key 不匹配
+      // 注意：SplashScreen 初始化时 context 可能还没拿到 MediaQuery，
+      // 但在 _bootstrap 执行时已经过了第一帧，通常是安全的。
+      // 为了保险，我们可以包裹在 addPostFrameCallback 里，或者直接 try-catch
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        
+        try {
+          final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+          final targetWidth = (300 * pixelRatio).toInt(); // 300 是硬币组件的逻辑宽度
+
+          debugPrint("🔥 [Splash] 预热 Vintage 静态帧...");
+          
+          // 预加载静止帧 (heads_0040.png 和 tails_0040.png)
+          // 这样进入主页后，Image 组件能直接从内存缓存读取
+          precacheImage(
+            ResizeImage(
+              const AssetImage("assets/images/coin_anim/heads_0040.png"), 
+              width: targetWidth, 
+              policy: ResizeImagePolicy.fit
+            ),
+            context,
+          );
+          precacheImage(
+            ResizeImage(
+              const AssetImage("assets/images/coin_anim/tails_0040.png"), 
+              width: targetWidth, 
+              policy: ResizeImagePolicy.fit
+            ),
+            context,
+          );
+        } catch (e) {
+          debugPrint("⚠️ 预热失败 (可能是 Context 问题): $e");
+        }
+      });
+    }
+  }
+
   Future<void> _bootstrap() async {
-    // 1. 预加载逻辑 (如加载 heavy assets) 可放这里
-    // 2. 稍微震动一下，提示"系统启动"
+    // 1. 启动时的震动反馈
     Future.delayed(const Duration(milliseconds: 500), () {
       ref.read(hapticServiceProvider).light();
     });
 
-    // 3. 等待动画结束 (1.5秒仪式感)
+    // 🔥【新增】利用这段空闲时间，预热关键资源
+    // 注意：这里不要 await，让它并发执行，不阻塞启动流程
+    _warmupCriticalAssets();
+
+    // 2. 保持原有的 1.5秒 仪式感等待
     await Future.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
-    // 4. 无缝转场进入主页
+    // 3. 转场 (保持不变)
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => const DecisionScreen(),

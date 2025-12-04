@@ -84,33 +84,48 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
     });
   }
 
-  // 🖼️ 性能关键：预加载图片防止第一下卡顿
+  // 🔥【修改 1】不再直接调用预加载，而是放入 PostFrameCallback
+  // 确保组件 build 完成，第一帧已经上屏后，再开始加载动画序列
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _precacheImages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _lazyLoadAnimationFrames();
+    });
   }
 
-  void _precacheImages() {
-    // 🧠 [智能计算] 获取当前屏幕的像素密度
-    // 比如 iPhone 14 Pro 是 3.0，那么 300 * 3 = 900 像素
+  // 🔥【修改 2】重构预加载逻辑：异步 + 分批
+  Future<void> _lazyLoadAnimationFrames() async {
+    if (!mounted) return;
+    
+    // 1. 获取屏幕参数
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final targetWidth = (300 * pixelRatio).toInt(); // 300 是组件的逻辑宽度
+    final targetWidth = (300 * pixelRatio).toInt();
 
-    debugPrint("🚀 正在预加载图片，目标物理分辨率宽度: $targetWidth px");
+    // 2. 异步分批加载
+    // 我们不需要加载第 40 帧 (i=40)，因为 Splash 页已经预热过了
+    // 只需要加载动画过程中的帧 (1~39)
+    // 另外：为了极致体验，我们可以优先加载前 10 帧，防止用户手速太快点击
+    
+    const int batchSize = 5; // 每加载 5 张图，就休息一下
 
-    for (int i = 1; i <= _frameCount; i++) {
+    for (int i = 1; i < _frameCount; i++) {
+      if (!mounted) return;
+
       final frameNum = i.toString().padLeft(4, '0');
-      // 预加载两组序列，使用动态计算的 targetWidth
-      precacheImage(
+      
+      // 加载正面
+      await precacheImage(
         ResizeImage(
           AssetImage("assets/images/coin_anim/heads_$frameNum.png"), 
           width: targetWidth, 
-          policy: ResizeImagePolicy.fit, // 确保不超过指定宽度
+          policy: ResizeImagePolicy.fit,
         ), 
         context
       );
-      precacheImage(
+      
+      // 加载反面
+      await precacheImage(
         ResizeImage(
           AssetImage("assets/images/coin_anim/tails_$frameNum.png"), 
           width: targetWidth, 
@@ -118,7 +133,15 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
         ), 
         context
       );
+
+      // 🔥 核心黑科技：每处理 batchSize 张图，就暂停 16ms (一帧的时间)
+      // 这会让出 Event Loop，让 UI 线程有机会响应触摸事件或绘制界面
+      if (i % batchSize == 0) {
+        await Future.delayed(const Duration(milliseconds: 16));
+      }
     }
+    
+    debugPrint("✅ [CoinFlipper] 所有动画帧后台加载完毕");
   }
 
   void _flip() {
