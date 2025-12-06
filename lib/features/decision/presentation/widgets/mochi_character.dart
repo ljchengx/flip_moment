@@ -58,6 +58,10 @@ class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProv
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         final result = math.Random().nextBool() ? "YES" : "NO";
+
+        // 🎵 播放结果音效
+        ref.read(audioServiceProvider).play(SoundType.result, widget.skin.mode);
+
         widget.onResult?.call(result);
         ref.read(hapticServiceProvider).selection(); // 轻触反馈
         setState(() => _isProcessing = false);

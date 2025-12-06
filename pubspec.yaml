@@ -61,6 +61,10 @@ dependencies:
   # --- 🏠 桌面组件 (Home Widget) ---
   home_widget: ^0.7.0           # 桌面组件支持
 
+  # --- 📸 截图与保存 (Screenshot & Save) ---
+  screenshot: ^3.0.0            # Widget截图
+  gal: ^2.3.0                   # 保存图片到相册（现代化替代方案）
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8

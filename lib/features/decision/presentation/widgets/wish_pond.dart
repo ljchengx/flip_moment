@@ -189,7 +189,11 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
       // widget.onResult(_finalResult!); // 如果你想直接弹卡片，取消注释。
       // 但在这个设计里，水面文字本身就是结果，所以我们不强制弹窗，或者延后弹窗
       Future.delayed(const Duration(seconds: 2), () {
-        if(mounted) widget.onResult(_finalResult!);
+        if(mounted) {
+          // 🎵 播放结果音效
+          ref.read(audioServiceProvider).play(SoundType.result, widget.skin.mode);
+          widget.onResult(_finalResult!);
+        }
       });
     }
   }

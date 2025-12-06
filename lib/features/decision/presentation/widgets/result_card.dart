@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 import 'dart:ui';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:gal/gal.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../settings/providers/user_provider.dart';
@@ -26,15 +29,47 @@ class ResultCard extends ConsumerStatefulWidget {
 
 class _ResultCardState extends ConsumerState<ResultCard> {
   late FortuneData _fortune;
+  final ScreenshotController _screenshotController = ScreenshotController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _fortune = FortuneGenerator.generate(
-      context, 
+      context,
       widget.result == "YES",
       widget.skin.mode,
     );
+  }
+
+  Future<void> _saveCardAsImage() async {
+    try {
+      final Uint8List? imageBytes = await _screenshotController.capture(
+        pixelRatio: 3.0, // 高清截图
+      );
+
+      if (imageBytes != null) {
+        // 使用 gal 保存图片
+        await Gal.putImageBytes(imageBytes);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("卡片已保存到相册"),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("保存失败: $e"),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -60,12 +95,15 @@ class _ResultCardState extends ConsumerState<ResultCard> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RepaintBoundary(
-                child: _buildAdaptiveCard(loc, isYes),
+              Screenshot(
+                controller: _screenshotController,
+                child: RepaintBoundary(
+                  child: _buildAdaptiveCard(loc, isYes),
+                ),
               )
               .animate()
               .scale(
-                begin: const Offset(0.9, 0.9), 
+                begin: const Offset(0.9, 0.9),
                 end: const Offset(1.0, 1.0),
                 duration: 600.ms,
                 curve: Curves.easeOutQuart
@@ -79,6 +117,14 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildActionButton(
+                    icon: Icons.save_alt_rounded,
+                    label: "保存卡片",
+                    onTap: _saveCardAsImage,
+                    isPrimary: true,
+                    skin: widget.skin,
+                  ),
+                  const SizedBox(width: 24),
+                  _buildActionButton(
                     icon: Icons.ios_share,
                     label: loc.shareButton,
                     onTap: () {
@@ -86,14 +132,6 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                         SnackBar(content: Text("${loc.shareButton}... (Saving)")),
                       );
                     },
-                    isPrimary: true,
-                    skin: widget.skin,
-                  ),
-                  const SizedBox(width: 24),
-                  _buildActionButton(
-                    icon: Icons.close_rounded,
-                    label: loc.closeButton,
-                    onTap: widget.onClose,
                     isPrimary: false,
                     skin: widget.skin,
                   ),
@@ -146,7 +184,7 @@ class _ResultCardState extends ConsumerState<ResultCard> {
 
     // 日期与决策次数
     final now = DateTime.now();
-    final dateStr = "${now.day.toString().padLeft(2, '0')} . ${now.month.toString().padLeft(2, '0')} . ${now.year}";
+    final dateStr = "${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year}";
     final decisionNo = "NO.${user.totalFlips.toString().padLeft(4, '0')}"; // 用户总决策次数
 
     // 用户等级信息
@@ -312,19 +350,19 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                       Transform.rotate(
                         angle: -0.25,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            border: Border.all(color: stampColor.withOpacity(0.7), width: 3),
-                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: stampColor.withOpacity(0.7), width: 2),
+                            borderRadius: BorderRadius.circular(6),
                             // 印章内部稍微做旧
-                            color: stampColor.withOpacity(0.05), 
+                            color: stampColor.withOpacity(0.05),
                           ),
                           child: Text(
                             stampText,
                             style: GoogleFonts.blackOpsOne(
-                              fontSize: 22,
+                              fontSize: 16,
                               color: stampColor.withOpacity(0.9),
-                              letterSpacing: 1.5,
+                              letterSpacing: 1.2,
                             ),
                           ),
                         ),

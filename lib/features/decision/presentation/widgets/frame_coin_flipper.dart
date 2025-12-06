@@ -81,6 +81,10 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
       if (status == AnimationStatus.completed) {
         // 动画结束，回调结果
         final result = _isHeadsSequence ? "YES" : "NO";
+
+        // 🎵 播放结果音效
+        ref.read(audioServiceProvider).play(SoundType.result, widget.skin.mode);
+
         widget.onFlipEnd?.call(result);
         ref.read(hapticServiceProvider).heavy(); // 落地重震
       }

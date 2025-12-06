@@ -108,6 +108,10 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
           _decodingText = finalString;
           _displayResult = finalString;
         });
+
+        // 🎵 播放结果音效
+        ref.read(audioServiceProvider).play(SoundType.result, widget.skin.mode);
+
         ref.read(hapticServiceProvider).heavy(); // 最终确认反馈
         widget.onResult?.call(finalString);
       }

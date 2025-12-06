@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // --- 核心依赖 ---
 import '../../../../core/skin_engine/skin_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
-import '../../../../core/skins/cyber_skin.dart';
-import '../../../../core/services/audio/audio_service.dart';
 
 // --- 组件依赖 ---
 import '../../../l10n/app_localizations.dart';
@@ -54,11 +52,9 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
 
   void _handleDecisionEnd(String result) {
     final skin = ref.read(currentSkinProvider);
-    final audioService = ref.read(audioServiceProvider);
 
-    // 🎵 播放结果音效 (核心插入点)
-    audioService.play(SoundType.result, skin.mode);
-    
+    // 注意：结果音效已在各个交互组件内部播放，此处不再重复播放
+
     ref.read(decisionLogProvider.notifier).addRecord(result, skin.mode);
     
     // 🔥 核心修改：这里只负责记录是否升级，绝不弹窗！
@@ -170,14 +166,17 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // App 标题
-                          Text(
-                            loc.appTitle,
-                            style: skin.monoFont.copyWith(
-                              fontSize: 14,
-                              letterSpacing: 3.0,
-                              fontWeight: FontWeight.w900,
-                              color: skin.primaryAccent,
+                          // App 标题 - 使用 Flexible 防止溢出
+                          Flexible(
+                            child: Text(
+                              loc.appTitle,
+                              style: skin.monoFont.copyWith(
+                                fontSize: 14,
+                                letterSpacing: 3.0,
+                                fontWeight: FontWeight.w900,
+                                color: skin.primaryAccent,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           // 个人中心/设置入口
