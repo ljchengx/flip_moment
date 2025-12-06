@@ -1,12 +1,14 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../settings/providers/user_provider.dart';
 
-class ResultCard extends StatefulWidget {
+class ResultCard extends ConsumerStatefulWidget {
   final AppSkin skin;
   final String result;
   final VoidCallback onClose;
@@ -19,10 +21,10 @@ class ResultCard extends StatefulWidget {
   });
 
   @override
-  State<ResultCard> createState() => _ResultCardState();
+  ConsumerState<ResultCard> createState() => _ResultCardState();
 }
 
-class _ResultCardState extends State<ResultCard> {
+class _ResultCardState extends ConsumerState<ResultCard> {
   late FortuneData _fortune;
 
   @override
@@ -139,14 +141,21 @@ class _ResultCardState extends State<ResultCard> {
     // 印章文字
     final stampText = isApproved ? "APPROVED" : "NEXT TIME";
 
-    // 日期与序列号
+    // 🔥 获取用户数据
+    final user = ref.watch(userProvider);
+
+    // 日期与决策次数
     final now = DateTime.now();
     final dateStr = "${now.day.toString().padLeft(2, '0')} . ${now.month.toString().padLeft(2, '0')} . ${now.year}";
-    final serialNo = "NO.${now.millisecondsSinceEpoch.toString().substring(8)}"; // 取后几位
+    final decisionNo = "NO.${user.totalFlips.toString().padLeft(4, '0')}"; // 用户总决策次数
+
+    // 用户等级信息
+    final userLevel = "LV.${user.level}";
+    final userTitle = user.getTitleLabel(loc);
 
     return Container(
-      // 让卡片撑满宽度，并在垂直方向留出呼吸空间
-      width: double.infinity,
+      // 让卡片撑满宽度，但在大屏幕上限制最大宽度，并在垂直方向留出呼吸空间
+      width: MediaQuery.of(context).size.width.clamp(300.0, 500.0),
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: paperColor,
@@ -170,7 +179,7 @@ class _ResultCardState extends State<ResultCard> {
                 angle: 0.2, // 微微倾斜
                 child: Icon(
                   watermarkIcon,
-                  size: 280, // 巨大尺寸！
+                  size: MediaQuery.of(context).size.width * 0.7, // 响应式：屏幕宽度的 70%
                   color: Colors.black.withOpacity(0.04), // 极低透明度
                 ),
               ),
@@ -188,18 +197,48 @@ class _ResultCardState extends State<ResultCard> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 顶部：序列号与日期
+                  // 顶部：决策次数与日期
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(serialNo, style: GoogleFonts.courierPrime(fontSize: 12, color: Colors.black38, letterSpacing: 1.5)),
+                      // 左侧：决策次数
+                      Text(decisionNo, style: GoogleFonts.courierPrime(fontSize: 12, color: Colors.black38, letterSpacing: 1.5)),
+                      // 右侧：日期
                       Text(dateStr, style: GoogleFonts.courierPrime(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  
+
+                  const SizedBox(height: 8),
+
+                  // 🔥 用户称号标识（仅显示称号，不显示等级）
+                  Row(
+                    children: [
+                      // 称号装饰图标
+                      Icon(
+                        Icons.auto_awesome,
+                        size: 12,
+                        color: primaryTextColor.withOpacity(0.4),
+                      ),
+                      const SizedBox(width: 6),
+                      // 称号
+                      Flexible(
+                        child: Text(
+                          userTitle,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 11,
+                            color: primaryTextColor.withOpacity(0.6),
+                            fontStyle: FontStyle.italic,
+                            letterSpacing: 0.5,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 12),
-                  const Divider(color: Colors.black87, thickness: 1.5), 
-                  const SizedBox(height: 48), // 大面积留白
+                  const Divider(color: Colors.black87, thickness: 1.5),
+                  const SizedBox(height: 40), // 调整留白
 
                   // 中部：结果主标题 (Typography)
                   Center(
@@ -292,9 +331,9 @@ class _ResultCardState extends State<ResultCard> {
                       ),
                     ],
                   ),
-                  
-                  const SizedBox(height: 16),
-                  
+
+                  const SizedBox(height: 24), // 🔥 增加间距：从 16 改为 24
+
                   // 底部装饰：条形码纹理
                   Opacity(
                     opacity: 0.3,
@@ -320,97 +359,263 @@ class _ResultCardState extends State<ResultCard> {
   }
 
   Widget _buildHealingNote(AppLocalizations loc, bool isYes) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    // --- 1. 治愈系氛围配置 ---
+    // 这种"奶呼呼"的配色是小红书最流行的
+    final bgColors = isYes 
+        ? [const Color(0xFFFFF3E0), const Color(0xFFFFEBEE)] // 奶黄 -> 桃粉 (暖阳)
+        : [const Color(0xFFE0F7FA), const Color(0xFFE8F5E9)]; // 冰蓝 -> 薄荷 (清风)
+        
+    // 字体颜色：不要用纯黑，要用"暖咖色"，更温柔
+    final mainTextColor = const Color(0xFF5D4037); 
+    // 强调色 (用于贴纸背景)
+    final accentColor = isYes ? const Color(0xFFFFAB91) : const Color(0xFF81D4FA);
     
-    // 治愈系配色：奶呼呼的渐变
-    final gradient = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isYes 
-        ? [const Color(0xFFFFF9C4), const Color(0xFFFFE0B2)] // 奶黄 -> 奶橘
-        : [const Color(0xFFE1F5FE), const Color(0xFFE0F7FA)], // 奶蓝 -> 奶绿
-    );
+    // 视觉元素
+    final watermarkIcon = isYes ? Icons.favorite_rounded : Icons.cloud_rounded;
+    final stickerText = isYes ? "PERFECT!" : "CHILL~";
+    
+    // 🔥 获取用户数据
+    final user = ref.watch(userProvider);
 
-    return Transform.rotate(
-      angle: 0.03, // 微微倾斜，像随手贴的
-      child: Container(
-        width: screenWidth * 0.75,
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-            bottomLeft: Radius.circular(60), // 不规则圆角，增加可爱感
-            bottomRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            // 弥散柔光阴影，颜色跟随主色
-            BoxShadow(
-              color: gradient.colors.last.withOpacity(0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+    // 日期格式化：模拟手账日记
+    final now = DateTime.now();
+    final dateStr = "${now.month}月${now.day}日 · 今天";
+
+    // 用户等级信息
+    final userLevel = "LV.${user.level}";
+    final userTitle = user.getTitleLabel(loc);
+    final decisionCount = user.totalFlips;
+
+    return Container(
+      // 同样撑满全屏，但限制最大宽度，制造沉浸感
+      width: MediaQuery.of(context).size.width.clamp(300.0, 500.0),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: bgColors,
         ),
-        child: Column(
+        borderRadius: BorderRadius.circular(32), // 超级圆润的导角 (Super Ellipse)
+        boxShadow: [
+          // 第一层：弥散的彩色光晕 (Dreamy Glow)
+          BoxShadow(
+            color: bgColors.last.withOpacity(0.5),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+          // 第二层：内部的白色高光描边 (模拟果冻质感)
+          BoxShadow(
+            color: Colors.white.withOpacity(0.6),
+            blurRadius: 0,
+            spreadRadius: 2, // 模拟白色描边
+            offset: const Offset(0, 0),
+          )
+        ],
+      ),
+      // 使用 ClipRRect 裁剪内部溢出的水印
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: Stack(
           children: [
-            // ✨ 关键点：用巨大的 Emoji 代替图标，这是小红书最爱
-            Text(isYes ? "🎉" : "🍵", style: const TextStyle(fontSize: 80))
-                .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+            // --- Layer 1: 背景纹理 (手账点阵) ---
+            Positioned.fill(
+               child: Opacity(
+                 opacity: 0.15, // 淡淡的，不抢戏
+                 child: CustomPaint(painter: DotGridPainter(color: mainTextColor)),
+               ),
+            ),
             
-            const SizedBox(height: 16),
-            
-            Text(
-              _fortune.mainTitle,
-              style: GoogleFonts.zcoolKuaiLe( // 你的代码里已经用了这个，很棒！
-                fontSize: 40,
-                color: const Color(0xFF5D4037), // 暖咖色文字，不要用纯黑
-                fontWeight: FontWeight.w600,
+            // --- Layer 2: 巨大水印 (The Giant Watermark) ---
+            // 放在左下角或角落，像云朵一样漂浮
+            Positioned(
+              left: -40,
+              bottom: -30,
+              child: Transform.rotate(
+                angle: -0.2,
+                child: Icon(
+                  watermarkIcon,
+                  size: MediaQuery.of(context).size.width * 0.8, // 响应式：屏幕宽度的 80%
+                  color: Colors.white.withOpacity(0.5), // 奶白色半透明
+                ),
               ),
             ),
             
-            const SizedBox(height: 12),
-            
-            // 像手账里的胶带文字背景
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _fortune.subTitle,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.maShanZheng(fontSize: 18, color: const Color(0xFF5C5C5C)),
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // 幸运色药丸
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(color: _fortune.luckyColor.withOpacity(0.3), width: 2),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            // --- Layer 3: 核心内容 ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.palette_rounded, size: 16, color: _fortune.luckyColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    "${loc.luckyColor}: ${_fortune.luckyColorName}",
-                    style: GoogleFonts.quicksand(
-                      color: _fortune.luckyColor, 
-                      fontWeight: FontWeight.bold
+                  // Top: 日期胶带 (Washi Tape)
+                  Transform.rotate(
+                    angle: -0.03, // 微微歪一点，像手贴的
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(100), // 胶囊形状
+                      ),
+                      child: Text(
+                        dateStr,
+                        style: GoogleFonts.maShanZheng(
+                          fontSize: 16,
+                          color: mainTextColor.withOpacity(0.8),
+                          letterSpacing: 1,
+                        ),
+                      ),
                     ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // 🔥 用户称号标识（治愈系风格，仅显示称号和决策次数）
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min, // 🔥 修复溢出：限制 Row 的最小尺寸
+                    children: [
+                      // 称号（使用 Flexible 防止溢出）
+                      Flexible(
+                        child: Text(
+                          userTitle,
+                          style: GoogleFonts.maShanZheng(
+                            fontSize: 13,
+                            color: mainTextColor.withOpacity(0.7),
+                            letterSpacing: 0.5,
+                          ),
+                          overflow: TextOverflow.ellipsis, // 🔥 防止文字溢出
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // 决策次数徽章
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: accentColor.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.auto_awesome, size: 12, color: accentColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              "×$decisionCount",
+                              style: GoogleFonts.fredoka(
+                                fontSize: 11,
+                                color: mainTextColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Spacer(flex: 1),
+                  
+                  // Center: 主标题 (Happy Font)
+                  // 治愈系要用圆体或快乐体
+                  Text(
+                    _fortune.mainTitle,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.zcoolKuaiLe( 
+                      fontSize: 72, // 依然要巨大！
+                      color: mainTextColor,
+                      height: 1.1,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Subtitle: 手写心情笔记
+                  Text(
+                    _fortune.subTitle,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.maShanZheng(
+                      fontSize: 24, // 加大字号
+                      color: mainTextColor.withOpacity(0.7),
+                      height: 1.4,
+                    ),
+                  ),
+                  
+                  const Spacer(flex: 2),
+                  
+                  // Bottom: 幸运药丸 & 结果贴纸
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Left: 幸运色药丸 (Lucky Pill)
+                      Container(
+                        padding: const EdgeInsets.all(5), // 内边距
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(40),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 3))
+                          ]
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                             // 颜色圆点
+                             Container(
+                               width: 28, height: 28,
+                               decoration: BoxDecoration(
+                                 color: _fortune.luckyColor,
+                                 shape: BoxShape.circle,
+                               ),
+                               child: const Icon(Icons.auto_awesome, size: 14, color: Colors.white),
+                             ),
+                             const SizedBox(width: 10),
+                             // 颜色名称
+                             Text(
+                               _fortune.luckyColorName,
+                               style: GoogleFonts.fredoka(
+                                 fontSize: 15, 
+                                 color: mainTextColor, 
+                                 fontWeight: FontWeight.w600
+                               ),
+                             ),
+                             const SizedBox(width: 16),
+                          ],
+                        ),
+                      ),
+                      
+                      // Right: 结果贴纸 (The Sticker)
+                      // 模拟一张带白边的贴纸
+                      Transform.rotate(
+                        angle: 0.15, // 俏皮地翘起来
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: accentColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white, width: 4), // 厚厚的白边
+                            boxShadow: [
+                              BoxShadow(color: accentColor.withOpacity(0.4), blurRadius: 8, offset: const Offset(2, 4))
+                            ]
+                          ),
+                          child: Text(
+                            stickerText,
+                            style: GoogleFonts.fredoka(
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -568,7 +773,7 @@ class _ResultCardState extends State<ResultCard> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        "${loc.today}\nAPPROVED",
+        "TODAY\nAPPROVED",
         textAlign: TextAlign.center,
         style: GoogleFonts.courierPrime(
           fontSize: 8, 
@@ -744,4 +949,30 @@ class FortuneGenerator {
 
     return FortuneData(titles[index], subs[index], stars, colorData.$1, colorData.$2);
   }
+}
+
+// 🌸 手账点阵绘制器 (放在文件底部)
+class DotGridPainter extends CustomPainter {
+  final Color color;
+  DotGridPainter({required this.color});
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 圆点画笔
+    final paint = Paint()
+      ..color = color.withOpacity(0.2) // 很淡
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+      
+    const double spacing = 26.0; // 点阵间距
+    
+    for (double x = 14; x < size.width; x += spacing) {
+      for (double y = 14; y < size.height; y += spacing) {
+        canvas.drawCircle(Offset(x, y), 1.5, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

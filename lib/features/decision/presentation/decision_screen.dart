@@ -200,17 +200,37 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                         border: Border.all(color: skin.textPrimary.withOpacity(0.2)),
                         borderRadius: BorderRadius.circular(4),
                       ) : null,
-                      child: Text(
-                        "2025 . 11 . 26", // 实际开发建议用 DateFormat
-                        style: skin.monoFont.copyWith(
-                          fontSize: 14,
-                          color: skin.textPrimary.withOpacity(0.6),
-                          letterSpacing: 1.5,
-                        ),
+                      child: Builder(
+                        builder: (context) {
+                          final now = DateTime.now();
+                          final dateStr = "${now.year} . ${now.month.toString().padLeft(2, '0')} . ${now.day.toString().padLeft(2, '0')}";
+                          return Text(
+                            dateStr,
+                            style: skin.monoFont.copyWith(
+                              fontSize: 14,
+                              color: skin.textPrimary.withOpacity(0.6),
+                              letterSpacing: 1.5,
+                            ),
+                          );
+                        },
                       ),
                     ),
 
-                    const Spacer(),
+                    // 🔥 动态计算顶部间距，使硬币与桌垫矩形居中对齐
+                    // 桌垫中心位置：screenHeight * 0.56 (中心 0.5 + 偏移 0.06)
+                    // 顶部已占用：导航栏 + 日期 ≈ 100px
+                    // 硬币容器高度：300px，硬币在容器中心，距容器顶部 150px
+                    Builder(
+                      builder: (context) {
+                        final screenHeight = MediaQuery.of(context).size.height;
+                        final targetCenterY = screenHeight * 0.56; // 桌垫中心 Y 坐标
+                        final topOccupied = 100.0; // 顶部导航栏和日期占用的高度
+                        final coinContainerHalfHeight = 150.0; // 硬币容器高度的一半
+                        final topSpacing = (targetCenterY - topOccupied - coinContainerHalfHeight).clamp(20.0, double.infinity);
+
+                        return SizedBox(height: topSpacing);
+                      },
+                    ),
 
                     // --- 🔥 3. 核心互动区 (多态调用) ---
                     // 无论当前是什么皮肤，直接调用 skin 协议中的工厂方法构建组件

@@ -8,13 +8,19 @@ class DeskDecoration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size.infinite,
-      painter: _DeskPainter(
-        lineColor: skin.textPrimary.withOpacity(0.05), // 线条再淡一点，不抢戏
-        matColor: Colors.black.withOpacity(0.25),      // 桌垫深色
-        accentColor: skin.primaryAccent.withOpacity(0.4), // 强调色 (取景框)
-        verticalOffset: 50.0, // 手动向下偏移 50.0 (根据实际预览效果微调)
+    // 🔥 根据屏幕高度动态计算偏移
+    final screenHeight = MediaQuery.of(context).size.height;
+    final dynamicOffset = screenHeight * 0.06; // 屏幕高度的 6%
+
+    return RepaintBoundary(
+      child: CustomPaint(
+        size: Size.infinite,
+        painter: _DeskPainter(
+          lineColor: skin.textPrimary.withOpacity(0.05), // 线条再淡一点，不抢戏
+          matColor: Colors.black.withOpacity(0.25),      // 桌垫深色
+          accentColor: skin.primaryAccent.withOpacity(0.4), // 强调色 (取景框)
+          verticalOffset: dynamicOffset, // 使用动态计算的偏移值
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/providers/locale_provider.dart';
@@ -51,6 +52,21 @@ void main() async {
     await Hive.deleteBoxFromDisk('settings_box');
     await Hive.openBox('settings_box');
   }
+
+  // 🔥 预加载 Google Fonts（复古主题及其他主题使用的常用字体）
+  // 消除首次渲染时的文字闪烁（FOUT）
+  await Future.wait([
+    GoogleFonts.pendingFonts([
+      GoogleFonts.playfairDisplay(),  // Vintage 显示字体
+      GoogleFonts.lato(),             // Vintage 正文字体
+      GoogleFonts.courierPrime(),     // Vintage 等宽字体
+      GoogleFonts.oswald(),           // Vintage 标签字体
+      GoogleFonts.blackOpsOne(),      // Vintage 印章字体
+      GoogleFonts.maShanZheng(),      // Healing 中文手写体
+      GoogleFonts.zcoolKuaiLe(),      // Healing 快乐体
+      GoogleFonts.fredoka(),          // Healing 圆体
+    ]),
+  ]);
 
   WidgetsFlutterBinding.ensureInitialized();
 

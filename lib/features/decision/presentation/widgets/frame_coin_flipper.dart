@@ -33,10 +33,10 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
   
   // ⚙️ 配置区：根据你的新素材调整
   final int _frameCount = 40; // 你的序列帧总数
-  final double _jumpHeight = -250.0; // 向上飞的高度 (负数向上)
+  final double _jumpHeight = -180.0; // 向上飞的高度 (负数向上) - 调整为更精致的跳跃
 
-  // 🔥【新增】定义硬币相对于屏幕宽度的比例
-  static const double _kCoinSizeRatio = 0.65;
+  // 🔥【优化】定义硬币相对于屏幕宽度的比例 - 调整为更精致的尺寸
+  static const double _kCoinSizeRatio = 0.48; // 从 0.65 减小到 0.48，更精致
 
   @override
   void initState() {
@@ -169,6 +169,10 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
 
   @override
   void dispose() {
+    // 🔥 安全检查：如果动画正在播放，先停止
+    if (_controller.isAnimating) {
+      _controller.stop();
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -204,7 +208,7 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
                 children: [
                   // --- A. 影子 ---
                   Positioned(
-                    bottom: 40, // 这里也可以考虑用 coinSize * 0.15 变成响应式，暂且保持
+                    bottom: coinSize * 0.15, // 响应式：影子距离 = 硬币尺寸的 15%
                     child: Opacity(
                       opacity: (1.0 - (_heightAnim.value / _jumpHeight)).clamp(0.2, 1.0),
                       child: Transform.scale(
