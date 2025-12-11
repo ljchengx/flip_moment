@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/cooldown_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/services/audio/audio_service.dart';
 import '../../../../core/services/haptics/haptic_service.dart';
@@ -154,6 +155,13 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
 
   void _flip() {
     if (_controller.isAnimating) return;
+    
+    // Check cooldown before allowing flip
+    // Requirements: 1.2, 2.2
+    if (!ref.read(cooldownProvider.notifier).canPerformDecision()) {
+      ref.read(hapticServiceProvider).light(); // Feedback that action is blocked
+      return;
+    }
 
     // 1. 决定结果 (50/50 概率)
     final isHeads = math.Random().nextBool();
@@ -186,10 +194,18 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
     // 🔥【核心修改】在 build 中计算尺寸
     final screenWidth = MediaQuery.of(context).size.width;
     final coinSize = screenWidth * _kCoinSizeRatio;
+    
+    // Watch cooldown state for disabled visual
+    // Requirements: 2.2
+    final cooldownState = ref.watch(cooldownProvider);
+    final isDisabled = cooldownState.isActive;
 
     return GestureDetector(
       onTap: _flip,
-      child: RepaintBoundary(
+      child: AnimatedOpacity(
+        opacity: isDisabled ? 0.5 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: RepaintBoundary(
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
@@ -256,6 +272,7 @@ class _FrameCoinFlipperState extends ConsumerState<FrameCoinFlipper> with Single
               ),
             );
           },
+        ),
         ),
       ),
     );

@@ -6,7 +6,8 @@
       "Bash(flutter build:*)",
       "Bash(flutter run:*)",
       "Bash(flutter devices:*)",
-      "Bash(flutter pub get:*)"
+      "Bash(flutter pub get:*)",
+      "Bash(flutter test:*)"
     ],
     "deny": [],
     "ask": []

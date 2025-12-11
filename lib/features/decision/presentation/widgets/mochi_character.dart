@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/cooldown_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/services/audio/audio_service.dart';
 import '../../../../core/services/haptics/haptic_service.dart';
@@ -84,6 +85,13 @@ class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProv
 
   void _onTap() {
     if (_isProcessing) return;
+    
+    // Check cooldown before allowing interaction
+    // Requirements: 1.2, 4.1
+    if (!ref.read(cooldownProvider.notifier).canPerformDecision()) {
+      ref.read(hapticServiceProvider).light(); // Feedback that action is blocked
+      return;
+    }
 
     // 🎵 播放 Q 弹音效
     ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
@@ -104,9 +112,17 @@ class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProv
 
   @override
   Widget build(BuildContext context) {
+    // Watch cooldown state for disabled visual
+    // Requirements: 2.2, 4.1
+    final cooldownState = ref.watch(cooldownProvider);
+    final isDisabled = cooldownState.isActive;
+    
     return GestureDetector(
       onTap: _onTap,
-      child: AnimatedBuilder(
+      child: AnimatedOpacity(
+        opacity: isDisabled ? 0.5 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: AnimatedBuilder(
         animation: Listenable.merge([_controller, _blinkController]),
         builder: (context, child) {
           return Stack(
@@ -163,6 +179,7 @@ class _MochiCharacterState extends ConsumerState<MochiCharacter> with TickerProv
             ],
           );
         },
+      ),
       ),
     );
   }

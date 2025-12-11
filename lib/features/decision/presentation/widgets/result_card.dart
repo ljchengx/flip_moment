@@ -84,23 +84,28 @@ class _ResultCardState extends ConsumerState<ResultCard> {
         alignment: Alignment.center,
         children: [
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                color: Colors.black.withOpacity(0.6),
-              ),
-            ).animate().fadeIn(duration: 400.ms),
+            child: GestureDetector(
+              onTap: widget.onClose, // 点击背景关闭
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: Colors.black.withOpacity(0.6),
+                ),
+              ).animate().fadeIn(duration: 400.ms),
+            ),
           ),
 
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Screenshot(
-                controller: _screenshotController,
-                child: RepaintBoundary(
-                  child: _buildAdaptiveCard(loc, isYes),
-                ),
-              )
+          GestureDetector(
+            onTap: () {}, // 阻止点击事件穿透到背景
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Screenshot(
+                  controller: _screenshotController,
+                  child: RepaintBoundary(
+                    child: _buildAdaptiveCard(loc, isYes),
+                  ),
+                )
               .animate()
               .scale(
                 begin: const Offset(0.9, 0.9),
@@ -140,7 +145,8 @@ class _ResultCardState extends ConsumerState<ResultCard> {
               .animate()
               .moveY(begin: 60, end: 0, delay: 200.ms, duration: 500.ms)
               .fadeIn(),
-            ],
+              ],
+            ),
           ),
         ],
       ),

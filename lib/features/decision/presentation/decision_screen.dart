@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // --- 核心依赖 ---
-import '../../../../core/skin_engine/skin_provider.dart';
-import '../../../../core/skin_engine/skin_protocol.dart';
+import '../../../core/providers/cooldown_provider.dart';
+import '../../../core/skin_engine/skin_provider.dart';
+import '../../../core/skin_engine/skin_protocol.dart';
+import '../../../core/ui/cooldown_indicator.dart';
 
 // --- 组件依赖 ---
 import '../../../l10n/app_localizations.dart';
@@ -56,7 +58,7 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     // 注意：结果音效已在各个交互组件内部播放，此处不再重复播放
 
     ref.read(decisionLogProvider.notifier).addRecord(result, skin.mode);
-    
+
     // 🔥 核心修改：这里只负责记录是否升级，绝不弹窗！
     ref.read(userProvider.notifier).addExperience(10, onLevelUp: () {
       _pendingLevelUp = true; // 埋下彩蛋
@@ -65,7 +67,7 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     if (mounted) {
       setState(() {
         _currentResult = result;
-        _showResult = true; 
+        _showResult = true;
       });
     }
   }
@@ -75,6 +77,10 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     setState(() {
       _showResult = false; // 先让结果卡片退场
     });
+
+    // Requirements: 1.1 - 用户关闭结果后启动冷却
+    // 这样用户可以从容查看结果，关闭后才开始冷却
+    ref.read(cooldownProvider.notifier).startCooldown();
 
     // 🧨 检查是否有待触发的升级惊喜
     if (_pendingLevelUp) {
@@ -108,11 +114,13 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
   Widget build(BuildContext context) {
     // 获取全局状态
     final skin = ref.watch(currentSkinProvider);
+    final cooldownState = ref.watch(cooldownProvider);
     final loc = AppLocalizations.of(context)!;
 
     // 辅助判断变量 (用于处理背景层的特殊逻辑)
     final isVintage = skin.mode == SkinMode.vintage;
     final isCyber = skin.mode == SkinMode.cyber;
+    final isHealing = skin.mode == SkinMode.healing;
 
     return Scaffold(
       // --- 背景层构建逻辑 ---
@@ -265,6 +273,23 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                 ),
               ),
 
+              // --- 层级 1.5: 冷却指示器遮罩层 ---
+              // Requirements: 2.1, 2.3 - 显示冷却状态指示器
+              if (cooldownState.isActive && !_showResult)
+                Positioned.fill(
+                  child: Container(
+                    color: (isVintage || isCyber || isHealing)
+                        ? Colors.black.withOpacity(0.5)
+                        : Colors.white.withOpacity(0.3),
+                    child: Center(
+                      child: CooldownIndicator(
+                        skin: skin,
+                        size: 120.0,
+                      ),
+                    ),
+                  ),
+                ),
+
               // --- 层级 2: 结果卡片遮罩层 ---
               if (_showResult)
                 Positioned.fill(
@@ -272,7 +297,7 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                     onTap: _closeResult, // 点击空白处关闭
                     child: Container(
                       // 遮罩颜色适配：深色主题用黑遮罩，浅色用白遮罩
-                      color: (isVintage || isCyber)
+                      color: (isVintage || isCyber || isHealing)
                           ? Colors.black.withOpacity(0.7)
                           : Colors.white.withOpacity(0.4),
                       child: Center(

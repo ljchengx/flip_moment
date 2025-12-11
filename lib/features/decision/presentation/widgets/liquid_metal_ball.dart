@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // 必装依赖
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/cooldown_provider.dart';
 import '../../../../core/skins/cyber_skin.dart';
 import '../../../../core/services/audio/audio_service.dart';
 import '../../../../core/services/haptics/haptic_service.dart';
@@ -56,6 +57,13 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
   // --- 交互逻辑 ---
 
   void _onLongPressStart(LongPressStartDetails details) {
+    // Check cooldown before allowing interaction
+    // Requirements: 1.2, 4.1
+    if (!ref.read(cooldownProvider.notifier).canPerformDecision()) {
+      ref.read(hapticServiceProvider).light(); // Feedback that action is blocked
+      return;
+    }
+    
     // 🎵 播放充电音效
     ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
 
@@ -120,6 +128,11 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
 
   @override
   Widget build(BuildContext context) {
+    // Watch cooldown state for disabled visual
+    // Requirements: 2.2, 4.1
+    final cooldownState = ref.watch(cooldownProvider);
+    final isDisabled = cooldownState.isActive;
+    
     return GestureDetector(
       // 关键：使用长按交互
       onLongPressStart: _onLongPressStart,
@@ -129,7 +142,10 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
         ref.read(hapticServiceProvider).light();
         // 可以加一个 Tooltip 或者 Toast 提示 "HOLD TO CHARGE"
       },
-      child: Stack(
+      child: AnimatedOpacity(
+        opacity: isDisabled ? 0.5 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: Stack(
         alignment: Alignment.center,
         children: [
           // 1. 液态球体
@@ -163,6 +179,7 @@ class _LiquidMetalBallState extends ConsumerState<LiquidMetalBall> with TickerPr
               ).animate(onPlay: (c) => c.repeat()).scale(begin: Offset(1,1), end: Offset(1.5, 1.5), duration: 600.ms).fadeOut(),
             )
         ],
+      ),
       ),
     );
   }

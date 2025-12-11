@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // 移除 noise_meter 和 permission_handler 引用
+import '../../../../core/providers/cooldown_provider.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../core/services/audio/audio_service.dart';
 import '../../../../core/services/haptics/haptic_service.dart';
@@ -78,6 +79,14 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
   void _onTapCoin() {
     if (_isFlying || _coinSunk) return;
+
+    // Check cooldown before allowing interaction
+    // Requirements: 1.2, 4.1
+    if (!ref.read(cooldownProvider.notifier).canPerformDecision()) {
+      ref.read(hapticServiceProvider).light(); // Feedback that action is blocked
+      return;
+    }
+
     ref.read(hapticServiceProvider).selection();
     // 模拟向下拖拽后发射
     _dragOffset = const Offset(0, 80);
@@ -86,10 +95,17 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
   void _onPanStart(DragStartDetails details) {
     if (_isFlying || _coinSunk) return;
-    
+
+    // Check cooldown before allowing interaction
+    // Requirements: 1.2, 4.1
+    if (!ref.read(cooldownProvider.notifier).canPerformDecision()) {
+      ref.read(hapticServiceProvider).light(); // Feedback that action is blocked
+      return;
+    }
+
     // 🎵 播放水滴音效
     ref.read(audioServiceProvider).play(SoundType.tap, widget.skin.mode);
-    
+
     _isDragging = true;
     ref.read(hapticServiceProvider).selection();
     setState(() {});
@@ -200,6 +216,11 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    // Watch cooldown state for disabled visual
+    // Requirements: 2.2, 4.1
+    final cooldownState = ref.watch(cooldownProvider);
+    final isDisabled = cooldownState.isActive;
+
     // 强制撑开尺寸
     return SizedBox(
       width: 300,
@@ -284,12 +305,15 @@ class _WishPondState extends ConsumerState<WishPond> with TickerProviderStateMix
                   offset: currentPos,
                   child: Transform.scale(
                     scale: currentScale,
-                    child: GestureDetector(
-                      onTap: _onTapCoin,
-                      onPanStart: _onPanStart,
-                      onPanUpdate: _onPanUpdate,
-                      onPanEnd: _onPanEnd,
-                      child: _buildGlowingCoin(),
+                    child: Opacity(
+                      opacity: isDisabled ? 0.5 : 1.0, // Show disabled state during cooldown
+                      child: GestureDetector(
+                        onTap: _onTapCoin,
+                        onPanStart: _onPanStart,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        child: _buildGlowingCoin(),
+                      ),
                     ),
                   ),
                 );
