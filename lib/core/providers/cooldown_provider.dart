@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -99,23 +100,27 @@ class CooldownNotifier extends Notifier<CooldownState> {
   /// 启动冷却
   /// Requirements: 1.1
   Future<void> startCooldown() async {
+    debugPrint('[FM] startCooldown 被调用');
     final endTime = DateTime.now().add(const Duration(seconds: cooldownDuration));
 
-    // 持久化结束时间戳
-    try {
-      final box = await Hive.openBox(_boxName);
-      await box.put(_kCooldownEndKey, endTime.millisecondsSinceEpoch);
-    } catch (e) {
-      // 持久化失败，继续执行但不影响主流程
-    }
-
+    // 🔥 先更新状态（同步），确保 UI 立即响应
     state = CooldownState(
       isActive: true,
       remainingSeconds: cooldownDuration,
       endTime: endTime,
     );
+    debugPrint('[FM] cooldown state更新: isActive=${state.isActive}, remaining=${state.remainingSeconds}');
 
     _startTimer();
+
+    // 然后持久化结束时间戳（异步，不阻塞 UI）
+    try {
+      final box = await Hive.openBox(_boxName);
+      await box.put(_kCooldownEndKey, endTime.millisecondsSinceEpoch);
+      debugPrint('[FM] cooldown 持久化完成');
+    } catch (e) {
+      debugPrint('[FM] cooldown 持久化失败: $e');
+    }
   }
 
   /// 启动倒计时 Timer

@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,80 +74,65 @@ class _ResultCardState extends ConsumerState<ResultCard> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    
+
     final bool isYes = widget.result == "YES";
-    
+
+    // 简化结构：移除内部遮罩层，由 DecisionScreen 负责遮罩
+    // 点击卡片任意位置都可以关闭
     return Material(
       color: Colors.transparent,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: widget.onClose, // 点击背景关闭
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Container(
-                  color: Colors.black.withOpacity(0.6),
-                ),
-              ).animate().fadeIn(duration: 400.ms),
-            ),
-          ),
+      child: GestureDetector(
+        onTap: widget.onClose, // 点击卡片也能关闭
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Screenshot(
+              controller: _screenshotController,
+              child: RepaintBoundary(
+                child: _buildAdaptiveCard(loc, isYes),
+              ),
+            )
+            .animate()
+            .scale(
+              begin: const Offset(0.9, 0.9),
+              end: const Offset(1.0, 1.0),
+              duration: 600.ms,
+              curve: Curves.easeOutQuart
+            )
+            .fadeIn(duration: 300.ms)
+            .shimmer(delay: 600.ms, duration: 1200.ms, color: Colors.white.withOpacity(0.1)),
 
-          GestureDetector(
-            onTap: () {}, // 阻止点击事件穿透到背景
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 40),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Screenshot(
-                  controller: _screenshotController,
-                  child: RepaintBoundary(
-                    child: _buildAdaptiveCard(loc, isYes),
-                  ),
-                )
-              .animate()
-              .scale(
-                begin: const Offset(0.9, 0.9),
-                end: const Offset(1.0, 1.0),
-                duration: 600.ms,
-                curve: Curves.easeOutQuart
-              )
-              .fadeIn(duration: 300.ms)
-              .shimmer(delay: 600.ms, duration: 1200.ms, color: Colors.white.withOpacity(0.1)),
-
-              const SizedBox(height: 40),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildActionButton(
-                    icon: Icons.save_alt_rounded,
-                    label: "保存卡片",
-                    onTap: _saveCardAsImage,
-                    isPrimary: true,
-                    skin: widget.skin,
-                  ),
-                  const SizedBox(width: 24),
-                  _buildActionButton(
-                    icon: Icons.ios_share,
-                    label: loc.shareButton,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("${loc.shareButton}... (Saving)")),
-                      );
-                    },
-                    isPrimary: false,
-                    skin: widget.skin,
-                  ),
-                ],
-              )
-              .animate()
-              .moveY(begin: 60, end: 0, delay: 200.ms, duration: 500.ms)
-              .fadeIn(),
+                _buildActionButton(
+                  icon: Icons.save_alt_rounded,
+                  label: "保存卡片",
+                  onTap: _saveCardAsImage,
+                  isPrimary: true,
+                  skin: widget.skin,
+                ),
+                const SizedBox(width: 24),
+                _buildActionButton(
+                  icon: Icons.ios_share,
+                  label: loc.shareButton,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("${loc.shareButton}... (Saving)")),
+                    );
+                  },
+                  isPrimary: false,
+                  skin: widget.skin,
+                ),
               ],
-            ),
-          ),
-        ],
+            )
+            .animate()
+            .moveY(begin: 60, end: 0, delay: 200.ms, duration: 500.ms)
+            .fadeIn(),
+          ],
+        ),
       ),
     );
   }

@@ -1,0 +1,148 @@
+# Implementation Plan
+
+- [ ] 1. Create healing color palette and text styles utilities
+  - [ ] 1.1 Create HealingColorPalette class with gradient colors and accent colors
+    - Define warmGradient and coolGradient color lists
+    - Define mainTextColor, warmAccent, coolAccent constants
+    - Add getGradientColors(bool isYes) method
+    - _Requirements: 1.1, 1.2, 1.3_
+  - [ ]* 1.2 Write property test for gradient color selection
+    - **Property 1: Gradient Color Selection Based on Result**
+    - **Validates: Requirements 1.1, 1.2, 1.3**
+  - [ ] 1.3 Create HealingTextStyles class with font configurations
+    - Define mainTitle, subtitle, dateLabel, badge, sticker text styles
+    - Use GoogleFonts.zcoolKuaiLe, maShanZheng, fredoka
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+  - [ ]* 1.4 Write property test for text styling constraints
+    - **Property 3: Text Styling Constraints**
+    - **Validates: Requirements 3.1, 3.3, 3.4, 4.5**
+
+- [ ] 2. Implement background layer components
+  - [ ] 2.1 Create SoftGradientBackground widget
+    - Accept isPositive parameter
+    - Render LinearGradient with correct color palette
+    - Apply 32px border radius
+    - Add white inner glow border effect
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [ ] 2.2 Update DotGridPainter for healing theme
+    - Set opacity to 0.15
+    - Set spacing to 26px
+    - Set dot radius to 1.5px
+    - _Requirements: 2.5_
+  - [ ] 2.3 Create WatermarkIcon widget
+    - Display heart icon for YES, cloud icon for NO
+    - Set size to 70% of card width
+    - Position at bottom-left with -40px offset
+    - Apply 0.4 opacity and slight rotation
+    - _Requirements: 2.1, 2.2_
+  - [ ]* 2.4 Write property test for watermark icon selection
+    - **Property 2: Watermark Icon Selection Based on Result**
+    - **Validates: Requirements 2.1**
+
+- [ ] 3. Implement content layer components
+  - [ ] 3.1 Create WashiTapeDateLabel widget
+    - Format date as "M月D日 · 今天"
+    - Apply -0.03 radian rotation
+    - Use pill-shaped white semi-transparent background
+    - _Requirements: 2.3_
+  - [ ] 3.2 Create UserInfoBadge widget
+    - Display user title with ellipsis overflow
+    - Display decision count as "×{count}" with sparkle icon
+    - Use pill-shaped badge with accent color background
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+  - [ ]* 3.3 Write property test for decision count formatting
+    - **Property 4: Decision Count Formatting**
+    - **Validates: Requirements 4.3**
+  - [ ]* 3.4 Write property test for user title truncation
+    - **Property 5: User Title Truncation**
+    - **Validates: Requirements 4.4**
+
+- [ ] 4. Implement bottom section components
+  - [ ] 4.1 Create LuckyPillWidget
+    - Display circular color swatch (28px) with lucky color
+    - Include sparkle icon inside swatch
+    - Display color name in Fredoka font
+    - Wrap in white pill container with shadow
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [ ]* 4.2 Write property test for lucky color swatch size
+    - **Property 10: Lucky Color Swatch Size**
+    - **Validates: Requirements 5.2**
+  - [ ] 4.3 Create ResultStickerWidget
+    - Select text from positive/negative vocabulary
+    - Apply 0.15 radian rotation
+    - Use accent color background with 4px white border
+    - Add colored drop shadow
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
+  - [ ]* 4.4 Write property test for sticker text vocabulary
+    - **Property 6: Sticker Text Vocabulary**
+    - **Validates: Requirements 6.2, 6.3**
+  - [ ]* 4.5 Write property test for sticker styling constraints
+    - **Property 7: Sticker Styling Constraints**
+    - **Validates: Requirements 6.4, 6.5, 6.6**
+
+- [ ] 5. Checkpoint - Ensure all component tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 6. Assemble HealingNoteCard main widget
+  - [ ] 6.1 Create HealingNoteCard widget structure
+    - Set up Container with SoftGradientBackground
+    - Apply ClipRRect with 32px border radius
+    - Add jelly texture box shadow
+    - _Requirements: 1.4, 1.5_
+  - [ ] 6.2 Compose background layer
+    - Stack DotGridPainter, WatermarkIcon
+    - Position watermark at bottom-left
+    - _Requirements: 2.1, 2.2, 2.5_
+  - [ ] 6.3 Compose content layer
+    - Add WashiTapeDateLabel at top
+    - Add UserInfoBadge below date
+    - Add main title with HealingTextStyles.mainTitle
+    - Add subtitle with HealingTextStyles.subtitle
+    - Add bottom row with LuckyPillWidget and ResultStickerWidget
+    - _Requirements: 2.3, 3.1, 3.2, 3.3, 3.5, 4.1, 5.1, 6.1_
+  - [ ]* 6.4 Write property test for card aspect ratio
+    - **Property 8: Card Aspect Ratio**
+    - **Validates: Requirements 8.2**
+  - [ ]* 6.5 Write property test for encouraging phrase vocabulary
+    - **Property 9: Encouraging Phrase Vocabulary**
+    - **Validates: Requirements 3.5**
+
+- [ ] 7. Implement animations
+  - [ ] 7.1 Add entry animations to HealingNoteCard
+    - Scale animation from 0.9 to 1.0 over 600ms
+    - Fade animation over 300ms
+    - Use Curves.elasticOut for bouncy feel
+    - Add shimmer effect after initial animation
+    - _Requirements: 7.1, 7.2, 7.3, 7.5_
+  - [ ] 7.2 Create FloatingParticles decoration (optional)
+    - Generate random star/heart particles
+    - Apply gentle floating animation
+    - _Requirements: 2.4, 7.4_
+
+- [ ] 8. Integrate with existing ResultCard
+  - [ ] 8.1 Replace _buildHealingNote method in result_card.dart
+    - Import new HealingNoteCard widget
+    - Pass isYes, fortune, and user data
+    - Maintain screenshot controller integration
+    - _Requirements: 8.1, 8.3_
+  - [ ] 8.2 Update screenshot capture settings
+    - Set pixel ratio to 3.0
+    - Ensure card bounds contain all decorations
+    - _Requirements: 8.1, 8.3_
+  - [ ] 8.3 Verify haptic feedback and toast on save
+    - Trigger haptic feedback on successful save
+    - Show success toast notification
+    - _Requirements: 8.5_
+
+- [ ] 9. Update localization strings
+  - [ ] 9.1 Add healing-style encouraging phrases to app_en.arb
+    - Add positive result phrases
+    - Add negative result phrases
+    - _Requirements: 3.5_
+  - [ ] 9.2 Add healing-style encouraging phrases to app_zh.arb
+    - Add Chinese positive result phrases
+    - Add Chinese negative result phrases
+    - _Requirements: 3.5_
+
+- [ ] 10. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

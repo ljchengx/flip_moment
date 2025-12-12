@@ -49,10 +49,14 @@ class _CooldownIndicatorState extends ConsumerState<CooldownIndicator>
   Widget build(BuildContext context) {
     final cooldownState = ref.watch(cooldownProvider);
 
+    debugPrint('[FM] CooldownIndicator build: isActive=${cooldownState.isActive}, remaining=${cooldownState.remainingSeconds}');
+
     if (!cooldownState.isActive) {
+      debugPrint('[FM] CooldownIndicator 返回空组件');
       return const SizedBox.shrink();
     }
 
+    debugPrint('[FM] CooldownIndicator 显示倒计时UI');
     final progress = cooldownState.remainingSeconds / CooldownNotifier.cooldownDuration;
     final skin = widget.skin;
 

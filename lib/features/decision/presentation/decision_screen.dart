@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 // --- 核心依赖 ---
 import '../../../core/providers/cooldown_provider.dart';
@@ -29,9 +31,12 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
   // UI 状态
   bool _showResult = false;
   String _currentResult = "";
-  
+
   // ✨ 新增：埋藏彩蛋的标记
   bool _pendingLevelUp = false;
+
+  // 🔥 冷却提示状态（只在点击交互区时短暂显示）
+  bool _showCooldownHint = false;
 
   // 通用待机动画控制器 (用于驱动呼吸、悬浮等效果)
   late AnimationController _idleController;
@@ -74,13 +79,16 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
 
   // 关闭结果卡片
   void _closeResult() {
+    debugPrint('[FM] _closeResult 被调用');
     setState(() {
       _showResult = false; // 先让结果卡片退场
     });
 
     // Requirements: 1.1 - 用户关闭结果后启动冷却
     // 这样用户可以从容查看结果，关闭后才开始冷却
+    debugPrint('[FM] 准备调用 startCooldown');
     ref.read(cooldownProvider.notifier).startCooldown();
+    debugPrint('[FM] startCooldown 调用完成');
 
     // 🧨 检查是否有待触发的升级惊喜
     if (_pendingLevelUp) {
@@ -110,12 +118,36 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     });
   }
 
+  // 🔥 检查冷却状态，如果冷却中则显示提示
+  // 返回 true 表示冷却中（阻止决策），false 表示可以继续
+  bool _checkAndShowCooldownHint() {
+    final cooldownState = ref.read(cooldownProvider);
+    debugPrint('[FM] _checkAndShowCooldownHint: isActive=${cooldownState.isActive}, remaining=${cooldownState.remainingSeconds}');
+    if (cooldownState.isActive) {
+      // 显示冷却提示，一直显示到冷却结束
+      debugPrint('[FM] 冷却中，设置 _showCooldownHint = true');
+      setState(() => _showCooldownHint = true);
+      return true; // 冷却中
+    }
+    return false; // 可以继续
+  }
+
   @override
   Widget build(BuildContext context) {
     // 获取全局状态
     final skin = ref.watch(currentSkinProvider);
     final cooldownState = ref.watch(cooldownProvider);
     final loc = AppLocalizations.of(context)!;
+
+    // 🔥 监听冷却结束，自动隐藏提示
+    if (_showCooldownHint && !cooldownState.isActive) {
+      // 使用 addPostFrameCallback 避免在 build 中调用 setState
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _showCooldownHint = false);
+        }
+      });
+    }
 
     // 辅助判断变量 (用于处理背景层的特殊逻辑)
     final isVintage = skin.mode == SkinMode.vintage;
@@ -244,13 +276,21 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                     SizedBox(
                       height: 300,
                       child: Center(
-                        child: skin.buildInteractiveHero(
-                          controller: _idleController, // 传入共享控制器
-                          onTap: () {
-                            // 任何皮肤开始交互时，都隐藏旧的结果卡片
-                            setState(() => _showResult = false);
+                        child: Listener(
+                          behavior: HitTestBehavior.translucent,
+                          onPointerDown: (_) {
+                            // 🔥 每次点击先检查冷却，如果冷却中显示提示
+                            debugPrint('[FM] onPointerDown 触发');
+                            _checkAndShowCooldownHint();
                           },
-                          onResult: _handleDecisionEnd, // 统一处理结果回调
+                          child: skin.buildInteractiveHero(
+                            controller: _idleController, // 传入共享控制器
+                            onTap: () {
+                              // 任何皮肤开始交互时，都隐藏旧的结果卡片
+                              setState(() => _showResult = false);
+                            },
+                            onResult: _handleDecisionEnd, // 统一处理结果回调
+                          ),
                         ),
                       ),
                     ),
@@ -273,10 +313,11 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                 ),
               ),
 
-              // --- 层级 1.5: 冷却指示器遮罩层 ---
-              // Requirements: 2.1, 2.3 - 显示冷却状态指示器
-              if (cooldownState.isActive && !_showResult)
-                Positioned.fill(
+              // --- 层级 1.5: 冷却提示（点击交互区时显示，直到冷却结束） ---
+              Builder(builder: (context) {
+                debugPrint('[FM] build冷却层: _showCooldownHint=$_showCooldownHint, isActive=${cooldownState.isActive}');
+                if (!_showCooldownHint) return const SizedBox.shrink();
+                return Positioned.fill(
                   child: Container(
                     color: (isVintage || isCyber || isHealing)
                         ? Colors.black.withOpacity(0.5)
@@ -288,29 +329,35 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                       ),
                     ),
                   ),
-                ),
+                );
+              }),
 
               // --- 层级 2: 结果卡片遮罩层 ---
               if (_showResult)
                 Positioned.fill(
                   child: GestureDetector(
+                    behavior: HitTestBehavior.opaque, // 确保点击空白处也能触发
                     onTap: _closeResult, // 点击空白处关闭
-                    child: Container(
-                      // 遮罩颜色适配：深色主题用黑遮罩，浅色用白遮罩
-                      color: (isVintage || isCyber || isHealing)
-                          ? Colors.black.withOpacity(0.7)
-                          : Colors.white.withOpacity(0.4),
-                      child: Center(
-                        // 阻止点击事件穿透到遮罩
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: ResultCard(
-                            skin: skin,
-                            result: _currentResult,
-                            onClose: _closeResult,
-                          ),
-                        ),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: Container(
+                        // 遮罩颜色适配：深色主题用黑遮罩，浅色用白遮罩
+                        color: (isVintage || isCyber || isHealing)
+                            ? Colors.black.withOpacity(0.6)
+                            : Colors.white.withOpacity(0.4),
                       ),
+                    ).animate().fadeIn(duration: 400.ms),
+                  ),
+                ),
+
+              // --- 层级 2.5: 结果卡片内容 ---
+              if (_showResult)
+                Positioned.fill(
+                  child: Center(
+                    child: ResultCard(
+                      skin: skin,
+                      result: _currentResult,
+                      onClose: _closeResult,
                     ),
                   ),
                 ),
