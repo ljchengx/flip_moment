@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../../core/ui/text/healing_subtitle_text.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../settings/providers/user_provider.dart';
 import 'fortune_data.dart';
@@ -211,14 +212,9 @@ class _HealingResultCardState extends ConsumerState<HealingResultCard> {
                   const SizedBox(height: 24),
 
                   // Subtitle: 手写心情笔记
-                  Text(
-                    widget.fortune.subTitle,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.maShanZheng(
-                      fontSize: 24,
-                      color: mainTextColor.withOpacity(0.7),
-                      height: 1.4,
-                    ),
+                  HealingSubTitleText(
+                    text: widget.fortune.subTitle,
+                    textColor: mainTextColor.withOpacity(0.7),
                   ),
 
                   const SizedBox(height: 40),
@@ -250,12 +246,15 @@ class _HealingResultCardState extends ConsumerState<HealingResultCard> {
                               child: const Icon(Icons.auto_awesome, size: 14, color: Colors.white),
                             ),
                             const SizedBox(width: 10),
-                            Text(
-                              widget.fortune.luckyColorName,
-                              style: GoogleFonts.fredoka(
-                                  fontSize: 15,
-                                  color: mainTextColor,
-                                  fontWeight: FontWeight.w600
+                            Flexible(
+                              child: Text(
+                                widget.fortune.luckyColorName,
+                                style: GoogleFonts.fredoka(
+                                    fontSize: 15,
+                                    color: mainTextColor,
+                                    fontWeight: FontWeight.w600
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 16),

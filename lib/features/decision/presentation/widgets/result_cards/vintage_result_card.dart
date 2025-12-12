@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../../core/ui/text/vintage_subtitle_text.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../settings/providers/user_provider.dart';
 import 'fortune_data.dart';
@@ -148,21 +149,7 @@ class VintageResultCard extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // 副标题
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      color: Colors.black.withOpacity(0.05),
-                      child: Text(
-                        subTitle,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.maShanZheng(
-                          fontSize: 20,
-                          color: Colors.black54,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ),
-                  ),
+                  VintageSubTitleText(text: subTitle),
 
                   const SizedBox(height: 64),
 

@@ -1,0 +1,91 @@
+# Implementation Plan
+
+- [ ] 1. Create text layout utilities
+  - [ ] 1.1 Create TextLayoutConfig data class
+    - Define minFontSize, maxFontSize, lineHeight, letterSpacing, minCharsPerLine, allowScaling fields
+    - Add static vintage and healing preset configurations
+    - _Requirements: 2.2, 2.3, 3.3, 3.4_
+  - [ ] 1.2 Create TextBreakBalancer utility class
+    - Implement balance() method for calculating optimal line breaks
+    - Implement _redistributeLines() for rebalancing line content
+    - Implement _findBestBreakPoint() for finding punctuation-based break points
+    - _Requirements: 1.1, 1.2, 3.5_
+  - [ ]* 1.3 Write property test for no orphan characters
+    - **Property 1: No Orphan Characters**
+    - **Validates: Requirements 1.1, 1.3**
+  - [ ] 1.4 Create ResponsiveTextConfig utility class
+    - Implement fontSizeMultiplier getter for screen width < 360px
+    - Implement horizontalPadding getter for screen width > 400px
+    - _Requirements: 4.1, 4.2_
+  - [ ]* 1.5 Write property test for minimum horizontal padding
+    - **Property 4: Minimum Horizontal Padding**
+    - **Validates: Requirements 4.4**
+
+- [ ] 2. Checkpoint - Ensure utility tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 3. Update Vintage Result Card subtitle layout
+  - [ ] 3.1 Create VintageSubTitleText widget
+    - Wrap subtitle in FittedBox with BoxFit.scaleDown
+    - Add Container with 5% opacity black background
+    - Set letter-spacing to 1.2px
+    - Set minimum font size constraint to 14px
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
+  - [ ]* 3.2 Write property test for Vintage font size bounds
+    - **Property 2: Vintage Theme Font Size Bounds**
+    - **Validates: Requirements 2.2, 2.3**
+  - [ ] 3.3 Implement balanced two-line fallback for Vintage
+    - Use TextBreakBalancer when text cannot fit in single line at min font size
+    - Ensure character count difference between lines <= 4
+    - _Requirements: 2.5_
+  - [ ]* 3.4 Write property test for balanced line distribution
+    - **Property 6: Balanced Line Distribution (Vintage)**
+    - **Validates: Requirements 2.5**
+  - [ ] 3.5 Update vintage_result_card.dart to use VintageSubTitleText
+    - Replace existing subtitle Text widget with VintageSubTitleText
+    - Pass text and color parameters
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
+- [ ] 4. Update Healing Result Card subtitle layout
+  - [ ] 4.1 Create HealingSubTitleText widget
+    - Use LayoutBuilder to get container constraints
+    - Apply TextBreakBalancer with minCharsPerLine = 4
+    - Set font size to 24px (fixed, no scaling)
+    - Set line-height to 1.5
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [ ]* 4.2 Write property test for Healing text constraints
+    - **Property 3: Healing Theme Text Constraints**
+    - **Validates: Requirements 3.2, 3.3, 3.4**
+  - [ ] 4.3 Update healing_result_card.dart to use HealingSubTitleText
+    - Replace existing subtitle Text widget with HealingSubTitleText
+    - Pass text and textColor parameters
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+
+- [ ] 5. Update main title layout for both themes
+  - [ ] 5.1 Update Vintage main title with FittedBox
+    - Wrap main title in FittedBox with BoxFit.scaleDown
+    - Set minimum font size to 48px
+    - Ensure no truncation or ellipsis
+    - _Requirements: 5.1, 5.2, 5.3, 5.4_
+  - [ ] 5.2 Update Healing main title with FittedBox
+    - Wrap main title in FittedBox with BoxFit.scaleDown
+    - Set minimum font size to 56px
+    - Ensure no truncation or ellipsis
+    - _Requirements: 5.1, 5.2, 5.3, 5.4_
+  - [ ]* 5.3 Write property test for main title no truncation
+    - **Property 5: Main Title No Truncation**
+    - **Validates: Requirements 5.2, 5.3, 5.4**
+
+- [ ] 6. Implement responsive text sizing
+  - [ ] 6.1 Apply responsive font size multiplier
+    - Reduce font size by 15% when screen width < 360px
+    - Apply to both Vintage and Healing subtitle widgets
+    - _Requirements: 4.1_
+  - [ ] 6.2 Apply responsive horizontal padding
+    - Increase padding to 32px when screen width > 400px
+    - Maintain minimum 16px padding on all screen sizes
+    - _Requirements: 4.2, 4.4_
+
+- [ ] 7. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
