@@ -745,6 +745,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fate Architect'**
   String get titleFateArchitect;
+
+  /// No description provided for @cooldownGatheringPhrase1.
+  ///
+  /// In en, this message translates to:
+  /// **'Gathering energy...'**
+  String get cooldownGatheringPhrase1;
+
+  /// No description provided for @cooldownGatheringPhrase2.
+  ///
+  /// In en, this message translates to:
+  /// **'Centering your spirit...'**
+  String get cooldownGatheringPhrase2;
+
+  /// No description provided for @cooldownGatheringPhrase3.
+  ///
+  /// In en, this message translates to:
+  /// **'Fate is weaving...'**
+  String get cooldownGatheringPhrase3;
+
+  /// No description provided for @cooldownAlmostReadyPhrase1.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost ready...'**
+  String get cooldownAlmostReadyPhrase1;
+
+  /// No description provided for @cooldownAlmostReadyPhrase2.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy rising...'**
+  String get cooldownAlmostReadyPhrase2;
+
+  /// No description provided for @cooldownAlmostReadyPhrase3.
+  ///
+  /// In en, this message translates to:
+  /// **'Clarity approaching...'**
+  String get cooldownAlmostReadyPhrase3;
+
+  /// No description provided for @cooldownReadyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready!'**
+  String get cooldownReadyMessage;
+
+  /// No description provided for @decisionCounterFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision #{count}'**
+  String decisionCounterFormat(int count);
+
+  /// No description provided for @wisdomQuote1.
+  ///
+  /// In en, this message translates to:
+  /// **'Every decision is a key to the future'**
+  String get wisdomQuote1;
+
+  /// No description provided for @wisdomQuote2.
+  ///
+  /// In en, this message translates to:
+  /// **'Patience reveals the answer'**
+  String get wisdomQuote2;
+
+  /// No description provided for @wisdomQuote3.
+  ///
+  /// In en, this message translates to:
+  /// **'Fate favors the prepared'**
+  String get wisdomQuote3;
+
+  /// No description provided for @wisdomQuote4.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe deep, let intuition guide you'**
+  String get wisdomQuote4;
+
+  /// No description provided for @wisdomQuote5.
+  ///
+  /// In en, this message translates to:
+  /// **'Good things take time'**
+  String get wisdomQuote5;
+
+  /// No description provided for @wisdomQuote6.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust the process'**
+  String get wisdomQuote6;
+
+  /// No description provided for @wisdomQuote7.
+  ///
+  /// In en, this message translates to:
+  /// **'Clarity comes with stillness'**
+  String get wisdomQuote7;
+
+  /// No description provided for @wisdomQuote8.
+  ///
+  /// In en, this message translates to:
+  /// **'Your path is unfolding'**
+  String get wisdomQuote8;
 }
 
 class _AppLocalizationsDelegate

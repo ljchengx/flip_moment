@@ -7,7 +7,7 @@ import '../../../core/providers/cooldown_provider.dart';
 import '../../../core/skin_engine/skin_provider.dart';
 import '../../../core/skin_engine/skin_protocol.dart';
 import '../../../core/ui/blurred_overlay.dart';
-import '../../../core/ui/cooldown_indicator.dart';
+import '../../cooldown_ritual/presentation/cooldown_ritual_screen.dart';
 
 // --- 组件依赖 ---
 import '../../../l10n/app_localizations.dart';
@@ -152,8 +152,8 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     final isCyber = skin.mode == SkinMode.cyber;
     final isHealing = skin.mode == SkinMode.healing;
 
-    // 深色主题使用浅色状态栏
-    final useLightStatusBar = isVintage || isCyber || isHealing;
+    // 深色主题使用浅色状态栏图标，浅色主题使用深色状态栏图标
+    final useLightStatusBar = isVintage || isCyber;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: useLightStatusBar ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -326,26 +326,17 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
           ),
         ),
 
-          // --- 层级 1.5: 冷却提示（全屏覆盖，包括状态栏） ---
+          // --- 层级 1.5: 冷却仪式（全屏覆盖，包括状态栏） ---
           if (_showCooldownHint)
             Positioned.fill(
               child: AnnotatedRegion<SystemUiOverlayStyle>(
-                // 深色遮罩时使用浅色状态栏图标
-                value: (isVintage || isCyber || isHealing)
+                // 深色背景使用浅色状态栏图标，浅色背景使用深色状态栏图标
+                value: (isVintage || isCyber)
                     ? SystemUiOverlayStyle.light
                     : SystemUiOverlayStyle.dark,
-                child: BlurredOverlay(
-                  isDark: isVintage || isCyber || isHealing,
-                  blurSigma: 12.0,
-                  overlayOpacity: 0.25,
-                  child: SafeArea(
-                    child: Center(
-                      child: CooldownIndicator(
-                        skin: skin,
-                        size: 120.0,
-                      ),
-                    ),
-                  ),
+                child: CooldownRitualScreen(
+                  skin: skin,
+                  onComplete: () => setState(() => _showCooldownHint = false),
                 ),
               ),
             ),

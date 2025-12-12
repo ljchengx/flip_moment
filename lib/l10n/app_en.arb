@@ -133,7 +133,32 @@
   "expProgress": "XP",
   "titleDrifter": "Drifter",
   "titleLightSeeker": "Light Seeker",
-  "titleMomentCollector": "Moment Collector", 
+  "titleMomentCollector": "Moment Collector",
   "titleStarReader": "Star Reader",
-  "titleFateArchitect": "Fate Architect"
+  "titleFateArchitect": "Fate Architect",
+
+  "@_COOLDOWN_RITUAL": {},
+  "cooldownGatheringPhrase1": "Gathering energy...",
+  "cooldownGatheringPhrase2": "Centering your spirit...",
+  "cooldownGatheringPhrase3": "Fate is weaving...",
+  "cooldownAlmostReadyPhrase1": "Almost ready...",
+  "cooldownAlmostReadyPhrase2": "Energy rising...",
+  "cooldownAlmostReadyPhrase3": "Clarity approaching...",
+  "cooldownReadyMessage": "Ready!",
+  "decisionCounterFormat": "Decision #{count}",
+  "@decisionCounterFormat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wisdomQuote1": "Every decision is a key to the future",
+  "wisdomQuote2": "Patience reveals the answer",
+  "wisdomQuote3": "Fate favors the prepared",
+  "wisdomQuote4": "Breathe deep, let intuition guide you",
+  "wisdomQuote5": "Good things take time",
+  "wisdomQuote6": "Trust the process",
+  "wisdomQuote7": "Clarity comes with stillness",
+  "wisdomQuote8": "Your path is unfolding"
 }

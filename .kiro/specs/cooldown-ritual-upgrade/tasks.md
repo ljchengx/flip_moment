@@ -1,0 +1,165 @@
+# Implementation Plan
+
+- [ ] 1. Create core data models and configuration
+  - [ ] 1.1 Create RitualThemeConfig class with skin-specific configurations
+    - Define gradientColors, orbGlowColor, orbFillColor, particleShape, particleColor for each skin
+    - Implement factory method `fromSkin(AppSkin skin)`
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [ ]* 1.2 Write property test for skin-specific ritual rendering
+    - **Property 9: Skin-Specific Ritual Rendering**
+    - **Validates: Requirements 7.1, 7.2, 7.3, 7.4**
+  - [ ] 1.3 Create CountdownPhrases class with localized phrase pools
+    - Define gatheringPhrases and almostReadyPhrases for Chinese and English
+    - Implement phrase selection logic based on time thresholds
+    - _Requirements: 5.2, 5.3, 5.4_
+  - [ ]* 1.4 Write property test for countdown poetry threshold mapping
+    - **Property 7: Countdown Poetry Threshold Mapping**
+    - **Validates: Requirements 5.2, 5.3, 5.4**
+  - [ ] 1.5 Create WisdomQuotes class with curated quote list
+    - Define healing/philosophical quotes in Chinese and English
+    - _Requirements: 4.2_
+  - [ ]* 1.6 Write property test for wisdom quote vocabulary
+    - **Property 6: Wisdom Quote Vocabulary**
+    - **Validates: Requirements 4.2**
+
+- [ ] 2. Implement EnergyOrbWidget
+  - [ ] 2.1 Create EnergyOrbWidget with progress-based fill visualization
+    - Implement fill percentage calculation from progress value
+    - Render circular orb with gradient fill
+    - _Requirements: 2.1_
+  - [ ]* 2.2 Write property test for progress-based fill percentage
+    - **Property 1: Progress-Based Fill Percentage**
+    - **Validates: Requirements 2.1**
+  - [ ] 2.3 Implement glow intensity based on progress
+    - Calculate opacity from 0.2 to 1.0 based on progress
+    - Apply glow effect using BoxShadow or CustomPainter
+    - _Requirements: 2.2_
+  - [ ]* 2.4 Write property test for progress-based glow intensity
+    - **Property 2: Progress-Based Glow Intensity**
+    - **Validates: Requirements 2.2**
+  - [ ] 2.5 Implement threshold state determination (dormant/charging/nearReady)
+    - Add visual differentiation for each state
+    - Implement pulsing glow for nearReady state (>80%)
+    - _Requirements: 2.3, 2.4_
+  - [ ]* 2.6 Write property test for threshold state determination
+    - **Property 3: Threshold State Determination**
+    - **Validates: Requirements 2.3, 2.4**
+  - [ ] 2.7 Implement breath animation with scale bounds 0.95-1.05
+    - Create AnimationController with 3-4 second cycle
+    - Apply Transform.scale with ease-in-out curve
+    - _Requirements: 10.1, 10.2, 10.5_
+  - [ ]* 2.8 Write property test for breath animation scale bounds
+    - **Property 11: Breath Animation Scale Bounds**
+    - **Validates: Requirements 10.2**
+  - [ ] 2.9 Implement breath animation acceleration for <20 seconds
+    - Reduce cycle duration when remaining time is low
+    - _Requirements: 10.4_
+  - [ ]* 2.10 Write property test for breath animation acceleration
+    - **Property 12: Breath Animation Acceleration**
+    - **Validates: Requirements 10.4**
+
+- [ ] 3. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 4. Implement ParticleAuraWidget
+  - [ ] 4.1 Create ParticleAuraWidget with floating particles
+    - Define Particle class with position, size, opacity, angle, speed, shape
+    - Generate 8-15 particles randomly
+    - _Requirements: 3.1_
+  - [ ]* 4.2 Write property test for particle count bounds
+    - **Property 4: Particle Count Bounds**
+    - **Validates: Requirements 3.1**
+  - [ ] 4.3 Implement particle animation with orbital/floating patterns
+    - Use CustomPainter for efficient rendering
+    - Apply gentle movement animation
+    - _Requirements: 3.2_
+  - [ ] 4.4 Implement particle brightness/speed scaling with progress
+    - Increase particle opacity and speed as progress increases
+    - _Requirements: 3.3_
+  - [ ] 4.5 Implement skin-specific particle colors
+    - Use RitualThemeConfig to get particle color from skin
+    - _Requirements: 3.5_
+  - [ ]* 4.6 Write property test for particle color skin matching
+    - **Property 5: Particle Color Skin Matching**
+    - **Validates: Requirements 3.5**
+  - [ ] 4.7 Implement particle convergence effect for celebration
+    - Accelerate particles toward center when progress reaches 100%
+    - _Requirements: 3.4_
+
+- [ ] 5. Implement supporting widgets
+  - [ ] 5.1 Create CountdownPoetryWidget
+    - Implement phrase selection based on time thresholds
+    - Style with large, elegant typography
+    - Add subtle animation for number countdown
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [ ] 5.2 Create WisdomQuoteWidget with quote rotation
+    - Implement 15-20 second rotation timer
+    - Apply fade transition between quotes
+    - Use handwritten/serif font style from skin
+    - _Requirements: 4.1, 4.3, 4.4, 4.5_
+  - [ ] 5.3 Create DecisionCounterBadge
+    - Format as "第 {n} 次决策" / "Decision #{n}"
+    - Style as pill-shaped badge with semi-transparent background
+    - Position at top of screen
+    - _Requirements: 6.1, 6.2, 6.3, 6.5_
+  - [ ]* 5.4 Write property test for decision counter format
+    - **Property 8: Decision Counter Format**
+    - **Validates: Requirements 6.2**
+
+- [ ] 6. Implement CooldownRitualScreen main container
+  - [ ] 6.1 Create CooldownRitualScreen with layered layout
+    - Implement background gradient layer
+    - Position EnergyOrbWidget at center
+    - Add ParticleAuraWidget around orb
+    - Position CountdownPoetryWidget and WisdomQuoteWidget
+    - Position DecisionCounterBadge at top
+    - _Requirements: 1.1, 1.2, 1.3_
+  - [ ] 6.2 Implement tap interaction with gentle reminder
+    - Show reminder message instead of blocking
+    - Trigger selection haptic feedback
+    - _Requirements: 1.4, 9.3_
+  - [ ] 6.3 Implement skin-themed gradient background
+    - Use RitualThemeConfig.gradientColors
+    - _Requirements: 1.3_
+
+- [ ] 7. Implement celebration and haptic feedback
+  - [ ] 7.1 Create UnlockCelebrationOverlay
+    - Implement orb expansion animation
+    - Add particle burst effect
+    - Display "Ready!" / "准备好了!" message
+    - Duration 800-1200ms
+    - _Requirements: 8.1, 8.2, 8.3, 8.4_
+  - [ ] 7.2 Implement celebration completion transition
+    - Smoothly transition back to decision interface
+    - _Requirements: 8.5_
+  - [ ] 7.3 Implement haptic feedback integration
+    - Light haptic at 80%+ progress pulse
+    - Medium haptic at celebration
+    - Selection haptic on tap
+    - _Requirements: 9.1, 9.2, 9.3_
+  - [ ] 7.4 Implement haptic settings respect
+    - Check user haptic preference before triggering
+    - Skip haptic gracefully when disabled
+    - _Requirements: 9.4, 9.5_
+  - [ ]* 7.5 Write property test for haptic settings respect
+    - **Property 10: Haptic Settings Respect**
+    - **Validates: Requirements 9.4, 9.5**
+
+- [ ] 8. Integrate with existing decision flow
+  - [ ] 8.1 Update DecisionScreen to show CooldownRitualScreen
+    - Replace current CooldownIndicator with CooldownRitualScreen when cooldown is active
+    - Handle transition between ritual screen and decision interface
+    - _Requirements: 1.1_
+  - [ ] 8.2 Update cooldown provider if needed
+    - Ensure cooldown state provides all necessary data
+    - Add celebration trigger callback
+    - _Requirements: 2.5, 8.1_
+  - [ ] 8.3 Add localization strings
+    - Add countdown poetry phrases to app_en.arb and app_zh.arb
+    - Add wisdom quotes to localization files
+    - Add decision counter format strings
+    - _Requirements: 5.2, 5.3, 6.2_
+
+- [ ] 9. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+

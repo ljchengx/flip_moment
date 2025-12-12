@@ -331,4 +331,54 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get titleFateArchitect => '命运主理人';
+
+  @override
+  String get cooldownGatheringPhrase1 => '静心片刻...';
+
+  @override
+  String get cooldownGatheringPhrase2 => '能量汇聚中...';
+
+  @override
+  String get cooldownGatheringPhrase3 => '命运正在编织...';
+
+  @override
+  String get cooldownAlmostReadyPhrase1 => '即将准备好...';
+
+  @override
+  String get cooldownAlmostReadyPhrase2 => '能量充盈中...';
+
+  @override
+  String get cooldownAlmostReadyPhrase3 => '答案渐渐清晰...';
+
+  @override
+  String get cooldownReadyMessage => '准备好了!';
+
+  @override
+  String decisionCounterFormat(int count) {
+    return '第 $count 次决策';
+  }
+
+  @override
+  String get wisdomQuote1 => '每一个决定都是通往未来的钥匙';
+
+  @override
+  String get wisdomQuote2 => '静心等待,答案自会浮现';
+
+  @override
+  String get wisdomQuote3 => '命运眷顾有准备的人';
+
+  @override
+  String get wisdomQuote4 => '深呼吸,让直觉引导你';
+
+  @override
+  String get wisdomQuote5 => '好事多磨,耐心是最好的礼物';
+
+  @override
+  String get wisdomQuote6 => '相信过程';
+
+  @override
+  String get wisdomQuote7 => '宁静中见真章';
+
+  @override
+  String get wisdomQuote8 => '你的道路正在展开';
 }

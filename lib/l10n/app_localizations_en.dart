@@ -331,4 +331,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get titleFateArchitect => 'Fate Architect';
+
+  @override
+  String get cooldownGatheringPhrase1 => 'Gathering energy...';
+
+  @override
+  String get cooldownGatheringPhrase2 => 'Centering your spirit...';
+
+  @override
+  String get cooldownGatheringPhrase3 => 'Fate is weaving...';
+
+  @override
+  String get cooldownAlmostReadyPhrase1 => 'Almost ready...';
+
+  @override
+  String get cooldownAlmostReadyPhrase2 => 'Energy rising...';
+
+  @override
+  String get cooldownAlmostReadyPhrase3 => 'Clarity approaching...';
+
+  @override
+  String get cooldownReadyMessage => 'Ready!';
+
+  @override
+  String decisionCounterFormat(int count) {
+    return 'Decision #$count';
+  }
+
+  @override
+  String get wisdomQuote1 => 'Every decision is a key to the future';
+
+  @override
+  String get wisdomQuote2 => 'Patience reveals the answer';
+
+  @override
+  String get wisdomQuote3 => 'Fate favors the prepared';
+
+  @override
+  String get wisdomQuote4 => 'Breathe deep, let intuition guide you';
+
+  @override
+  String get wisdomQuote5 => 'Good things take time';
+
+  @override
+  String get wisdomQuote6 => 'Trust the process';
+
+  @override
+  String get wisdomQuote7 => 'Clarity comes with stillness';
+
+  @override
+  String get wisdomQuote8 => 'Your path is unfolding';
 }
