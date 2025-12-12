@@ -1,12 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 // --- 核心依赖 ---
 import '../../../core/providers/cooldown_provider.dart';
 import '../../../core/skin_engine/skin_provider.dart';
 import '../../../core/skin_engine/skin_protocol.dart';
+import '../../../core/ui/blurred_overlay.dart';
 import '../../../core/ui/cooldown_indicator.dart';
 
 // --- 组件依赖 ---
@@ -69,6 +69,10 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
       _pendingLevelUp = true; // 埋下彩蛋
     });
 
+    // 🔥 决策结束后立即启动冷却倒计时（后台计时，不显示界面）
+    debugPrint('[FM] 决策结束，启动冷却倒计时');
+    ref.read(cooldownProvider.notifier).startCooldown();
+
     if (mounted) {
       setState(() {
         _currentResult = result;
@@ -83,12 +87,6 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     setState(() {
       _showResult = false; // 先让结果卡片退场
     });
-
-    // Requirements: 1.1 - 用户关闭结果后启动冷却
-    // 这样用户可以从容查看结果，关闭后才开始冷却
-    debugPrint('[FM] 准备调用 startCooldown');
-    ref.read(cooldownProvider.notifier).startCooldown();
-    debugPrint('[FM] startCooldown 调用完成');
 
     // 🧨 检查是否有待触发的升级惊喜
     if (_pendingLevelUp) {
@@ -154,83 +152,95 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
     final isCyber = skin.mode == SkinMode.cyber;
     final isHealing = skin.mode == SkinMode.healing;
 
-    return Scaffold(
+    // 深色主题使用浅色状态栏
+    final useLightStatusBar = isVintage || isCyber || isHealing;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: useLightStatusBar ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
       // --- 背景层构建逻辑 ---
-      body: Container(
-        decoration: BoxDecoration(
-          // 如果是特殊模式(复古/赛博)，背景色可能由 Decoration 或 Gradient 处理
-          color: (isVintage || isCyber) ? null : skin.backgroundSurface,
-          gradient: isVintage
-              ? RadialGradient(
-            center: Alignment.center,
-            radius: 1.2,
-            colors: [
-              // 复古模式：模拟台灯光照的径向渐变
-              Color.lerp(skin.backgroundSurface, Colors.white, 0.08)!,
-              skin.backgroundSurface,
-              Colors.black.withOpacity(0.8),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          )
-              : null,
-        ),
-        child: SafeArea(
-          // 使用 Stack 处理层级叠加
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // --- 层级 0.5: 动态背景装饰 ---
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // --- 最底层：背景容器 ---
+          Container(
+            decoration: BoxDecoration(
+              // 如果是特殊模式(复古/赛博)，背景色可能由 Decoration 或 Gradient 处理
+              color: (isVintage || isCyber) ? null : skin.backgroundSurface,
+              gradient: isVintage
+                  ? RadialGradient(
+                center: Alignment.center,
+                radius: 1.2,
+                colors: [
+                  // 复古模式：模拟台灯光照的径向渐变
+                  Color.lerp(skin.backgroundSurface, Colors.white, 0.08)!,
+                  skin.backgroundSurface,
+                  Colors.black.withOpacity(0.8),
+                ],
+                stops: const [0.0, 0.6, 1.0],
+              )
+                  : null,
+            ),
+          ),
 
-              // 1. 复古模式：桌垫与刻度线
-              if (isVintage)
-                Positioned.fill(
-                  child: DeskDecoration(skin: skin),
-                ),
+          // --- SafeArea 内的主要内容 ---
+          SafeArea(
+            // 使用 Stack 处理层级叠加
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // --- 层级 0.5: 动态背景装饰 ---
 
-              // 2. 赛博模式：HUD 抬头显示
-              if (isCyber)
-                Positioned.fill(
-                  child: const CyberHudDecoration(),
-                ),
+                // 1. 复古模式：桌垫与刻度线
+                if (isVintage)
+                  Positioned.fill(
+                    child: DeskDecoration(skin: skin),
+                  ),
 
-              // --- 层级 1: 主界面内容 ---
-              // 当结果弹出时，背景内容变淡 (Opacity)
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: _showResult ? 0.2 : 1.0,
-                child: Column(
-                  children: [
-                    // 1. 顶部导航栏
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // App 标题 - 使用 Flexible 防止溢出
-                          Flexible(
-                            child: Text(
-                              loc.appTitle,
-                              style: skin.monoFont.copyWith(
-                                fontSize: 14,
-                                letterSpacing: 3.0,
-                                fontWeight: FontWeight.w900,
-                                color: skin.primaryAccent,
+                // 2. 赛博模式：HUD 抬头显示
+                if (isCyber)
+                  Positioned.fill(
+                    child: const CyberHudDecoration(),
+                  ),
+
+                // --- 层级 1: 主界面内容 ---
+                // 当结果弹出时，背景内容变淡 (Opacity)
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: _showResult ? 0.2 : 1.0,
+                  child: Column(
+                    children: [
+                      // 1. 顶部导航栏
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // App 标题 - 使用 Flexible 防止溢出
+                            Flexible(
+                              child: Text(
+                                loc.appTitle,
+                                style: skin.monoFont.copyWith(
+                                  fontSize: 14,
+                                  letterSpacing: 3.0,
+                                  fontWeight: FontWeight.w900,
+                                  color: skin.primaryAccent,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          // 个人中心/设置入口
-                          IconButton(
-                            icon: Icon(Icons.space_dashboard_outlined, size: 22, color: skin.primaryAccent),
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => const MyProfileScreen()),
-                              );
-                            },
-                          ),
-                        ],
+                            // 个人中心/设置入口
+                            IconButton(
+                              icon: Icon(Icons.space_dashboard_outlined, size: 22, color: skin.primaryAccent),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => const MyProfileScreen()),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
 
                     // 2. 日期显示 (装饰性)
                     Container(
@@ -312,16 +322,23 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
 
-              // --- 层级 1.5: 冷却提示（点击交互区时显示，直到冷却结束） ---
-              Builder(builder: (context) {
-                debugPrint('[FM] build冷却层: _showCooldownHint=$_showCooldownHint, isActive=${cooldownState.isActive}');
-                if (!_showCooldownHint) return const SizedBox.shrink();
-                return Positioned.fill(
-                  child: Container(
-                    color: (isVintage || isCyber || isHealing)
-                        ? Colors.black.withOpacity(0.5)
-                        : Colors.white.withOpacity(0.3),
+          // --- 层级 1.5: 冷却提示（全屏覆盖，包括状态栏） ---
+          if (_showCooldownHint)
+            Positioned.fill(
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                // 深色遮罩时使用浅色状态栏图标
+                value: (isVintage || isCyber || isHealing)
+                    ? SystemUiOverlayStyle.light
+                    : SystemUiOverlayStyle.dark,
+                child: BlurredOverlay(
+                  isDark: isVintage || isCyber || isHealing,
+                  blurSigma: 12.0,
+                  overlayOpacity: 0.25,
+                  child: SafeArea(
                     child: Center(
                       child: CooldownIndicator(
                         skin: skin,
@@ -329,41 +346,42 @@ class _DecisionScreenState extends ConsumerState<DecisionScreen> with SingleTick
                       ),
                     ),
                   ),
-                );
-              }),
+                ),
+              ),
+            ),
 
-              // --- 层级 2: 结果卡片遮罩层 ---
-              if (_showResult)
-                Positioned.fill(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque, // 确保点击空白处也能触发
-                    onTap: _closeResult, // 点击空白处关闭
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
-                        // 遮罩颜色适配：深色主题用黑遮罩，浅色用白遮罩
-                        color: (isVintage || isCyber || isHealing)
-                            ? Colors.black.withOpacity(0.6)
-                            : Colors.white.withOpacity(0.4),
-                      ),
-                    ).animate().fadeIn(duration: 400.ms),
+          // --- 层级 2: 结果卡片遮罩层（全屏覆盖） ---
+          if (_showResult)
+            Positioned.fill(
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                // 深色遮罩时使用浅色状态栏图标
+                value: (isVintage || isCyber || isHealing)
+                    ? SystemUiOverlayStyle.light
+                    : SystemUiOverlayStyle.dark,
+                child: BlurredOverlay(
+                  onTap: _closeResult,
+                  isDark: isVintage || isCyber || isHealing,
+                  blurSigma: 18.0,
+                  overlayOpacity: 0.35,
+                ),
+              ),
+            ),
+
+          // --- 层级 2.5: 结果卡片内容 ---
+          if (_showResult)
+            Positioned.fill(
+              child: SafeArea(
+                child: Center(
+                  child: ResultCard(
+                    skin: skin,
+                    result: _currentResult,
+                    onClose: _closeResult,
                   ),
                 ),
-
-              // --- 层级 2.5: 结果卡片内容 ---
-              if (_showResult)
-                Positioned.fill(
-                  child: Center(
-                    child: ResultCard(
-                      skin: skin,
-                      result: _currentResult,
-                      onClose: _closeResult,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+              ),
+            ),
+        ],
+      ),
       ),
     );
   }
