@@ -9,6 +9,11 @@ import 'package:gal/gal.dart';
 import '../../../../core/skin_engine/skin_protocol.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../settings/providers/user_provider.dart';
+import 'floating_particles.dart';
+
+// Healing 皮肤贴纸文案池
+const _kPositiveStickerTexts = ["PERFECT!", "NICE!", "GO FOR IT!", "YES!"];
+const _kNegativeStickerTexts = ["CHILL~", "WAIT~", "NEXT TIME~", "PAUSE~"];
 
 class ResultCard extends ConsumerStatefulWidget {
   final AppSkin skin;
@@ -30,14 +35,28 @@ class _ResultCardState extends ConsumerState<ResultCard> {
   late FortuneData _fortune;
   final ScreenshotController _screenshotController = ScreenshotController();
 
+  // Healing 卡片的随机值（只生成一次）
+  late String _healingStickerText;
+  late double _healingStickerAngle;
+  late double _healingTapeAngle;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final isYes = widget.result == "YES";
     _fortune = FortuneGenerator.generate(
       context,
-      widget.result == "YES",
+      isYes,
       widget.skin.mode,
     );
+
+    // 预生成 Healing 卡片的随机值
+    final rnd = math.Random();
+    _healingStickerText = isYes
+        ? _kPositiveStickerTexts[rnd.nextInt(_kPositiveStickerTexts.length)]
+        : _kNegativeStickerTexts[rnd.nextInt(_kNegativeStickerTexts.length)];
+    _healingStickerAngle = 0.17 + rnd.nextDouble() * 0.18; // 10-20度
+    _healingTapeAngle = (rnd.nextDouble() * 0.105) - 0.0525; // -3~+3度
   }
 
   Future<void> _saveCardAsImage() async {
@@ -97,7 +116,7 @@ class _ResultCardState extends ConsumerState<ResultCard> {
               begin: const Offset(0.9, 0.9),
               end: const Offset(1.0, 1.0),
               duration: 600.ms,
-              curve: Curves.easeOutQuart
+              curve: Curves.elasticOut  // R7: 弹性回弹效果
             )
             .fadeIn(duration: 300.ms)
             .shimmer(delay: 600.ms, duration: 1200.ms, color: Colors.white.withOpacity(0.1)),
@@ -388,10 +407,10 @@ class _ResultCardState extends ConsumerState<ResultCard> {
 
   Widget _buildHealingNote(AppLocalizations loc, bool isYes) {
     // --- 1. 治愈系氛围配置 ---
-    // 这种"奶呼呼"的配色是小红书最流行的
-    final bgColors = isYes 
-        ? [const Color(0xFFFFF3E0), const Color(0xFFFFEBEE)] // 奶黄 -> 桃粉 (暖阳)
-        : [const Color(0xFFE0F7FA), const Color(0xFFE8F5E9)]; // 冰蓝 -> 薄荷 (清风)
+    // 莫兰迪色系：peachy-cream → soft-rose / mint-cream → lavender
+    final bgColors = isYes
+        ? [const Color(0xFFFFF5EE), const Color(0xFFFFE4E1)] // peachy-cream → soft-rose (暖)
+        : [const Color(0xFFF0FFF0), const Color(0xFFE6E6FA)]; // mint-cream → lavender (冷)
         
     // 字体颜色：不要用纯黑，要用"暖咖色"，更温柔
     final mainTextColor = const Color(0xFF5D4037); 
@@ -400,7 +419,8 @@ class _ResultCardState extends ConsumerState<ResultCard> {
     
     // 视觉元素
     final watermarkIcon = isYes ? Icons.favorite_rounded : Icons.cloud_rounded;
-    final stickerText = isYes ? "PERFECT!" : "CHILL~";
+    // 使用预生成的贴纸文案
+    final stickerText = _healingStickerText;
     
     // 🔥 获取用户数据
     final user = ref.watch(userProvider);
@@ -432,12 +452,19 @@ class _ResultCardState extends ConsumerState<ResultCard> {
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
-          // 第二层：内部的白色高光描边 (模拟果冻质感)
+          // 第二层：白色内发光 (Inner Glow) - R1.5
+          BoxShadow(
+            color: Colors.white.withOpacity(0.8),
+            blurRadius: 3,
+            spreadRadius: -1,
+            offset: Offset.zero,
+          ),
+          // 第三层：白色描边 (模拟果冻质感) - 2-3px
           BoxShadow(
             color: Colors.white.withOpacity(0.6),
             blurRadius: 0,
-            spreadRadius: 2, // 模拟白色描边
-            offset: const Offset(0, 0),
+            spreadRadius: 2.5,
+            offset: Offset.zero,
           )
         ],
       ),
@@ -453,7 +480,17 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                  child: CustomPaint(painter: DotGridPainter(color: mainTextColor)),
                ),
             ),
-            
+
+            // --- Layer 1.5: 漂浮粒子暂时禁用 ---
+            // TODO: 修复后重新启用
+            // Positioned.fill(
+            //   child: FloatingParticlesOverlay(
+            //     isYes: isYes,
+            //     tintColor: accentColor,
+            //     particleCount: 10,
+            //   ),
+            // ),
+
             // --- Layer 2: 巨大水印 (The Giant Watermark) ---
             // 放在左下角或角落，像云朵一样漂浮
             Positioned(
@@ -473,11 +510,12 @@ class _ResultCardState extends ConsumerState<ResultCard> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
               child: Column(
+                mainAxisSize: MainAxisSize.min, // 修复：必须使用 min，否则 Spacer 会导致无限扩展
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Top: 日期胶带 (Washi Tape)
                   Transform.rotate(
-                    angle: -0.03, // 微微歪一点，像手贴的
+                    angle: _healingTapeAngle, // 使用预生成的角度
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
@@ -543,8 +581,8 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                     ],
                   ),
 
-                  const Spacer(flex: 1),
-                  
+                  const SizedBox(height: 32), // 替换 Spacer
+
                   // Center: 主标题 (Happy Font)
                   // 治愈系要用圆体或快乐体
                   Text(
@@ -570,8 +608,8 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                     ),
                   ),
                   
-                  const Spacer(flex: 2),
-                  
+                  const SizedBox(height: 40), // 替换 Spacer
+
                   // Bottom: 幸运药丸 & 结果贴纸
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -617,7 +655,7 @@ class _ResultCardState extends ConsumerState<ResultCard> {
                       // Right: 结果贴纸 (The Sticker)
                       // 模拟一张带白边的贴纸
                       Transform.rotate(
-                        angle: 0.15, // 俏皮地翘起来
+                        angle: _healingStickerAngle, // 使用预生成的角度
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                           decoration: BoxDecoration(
